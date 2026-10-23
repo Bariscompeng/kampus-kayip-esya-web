@@ -1,14 +1,21 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using KampusKayipEsya.Web.Data;
 using KampusKayipEsya.Web.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace KampusKayipEsya.Web.Controllers;
 
-public class HomeController : Controller
+public class HomeController(AppDbContext context) : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var kategoriler = await context.Categories
+            .AsNoTracking()
+            .OrderBy(c => c.Id)
+            .ToListAsync();
+
+        return View(kategoriler);
     }
 
     public IActionResult Privacy()
