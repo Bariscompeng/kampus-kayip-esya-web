@@ -126,6 +126,50 @@ namespace KampusKayipEsya.Web.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Icon = "bi-phone",
+                            Name = "Elektronik"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Icon = "bi-person-vcard",
+                            Name = "Kimlik/Kart"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Icon = "bi-wallet2",
+                            Name = "Cüzdan"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Icon = "bi-key",
+                            Name = "Anahtar"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Icon = "bi-bag",
+                            Name = "Giyim"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Icon = "bi-book",
+                            Name = "Kitap"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Icon = "bi-three-dots",
+                            Name = "Diğer"
+                        });
                 });
 
             modelBuilder.Entity("KampusKayipEsya.Web.Models.Item", b =>
@@ -226,6 +270,51 @@ namespace KampusKayipEsya.Web.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Locations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Building = "Mühendislik Fakültesi",
+                            FloorOrRoom = "Zemin kat"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Building = "Mühendislik Fakültesi",
+                            FloorOrRoom = "1. kat"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Building = "Merkezi Derslik",
+                            FloorOrRoom = "Amfi"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Building = "Kütüphane"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Building = "Yemekhane"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Building = "Kantin"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Building = "Spor Salonu"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Building = "Güvenlik / Kayıp Eşya Bürosu"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

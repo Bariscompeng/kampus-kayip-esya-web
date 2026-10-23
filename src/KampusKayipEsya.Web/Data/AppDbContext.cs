@@ -54,5 +54,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
             e.HasIndex(i => new { i.Status, i.Type, i.EventDate });
         });
+
+        SeedData.Apply(builder);
     }
 }
