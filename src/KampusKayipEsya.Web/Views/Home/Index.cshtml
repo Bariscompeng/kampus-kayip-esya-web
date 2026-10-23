@@ -1,8 +1,92 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<Category>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+
+    var ornekBulunanlar = new[]
+    {
+        (Baslik: "Siyah deri cüzdan", Yer: "Merkezi Derslik", Zaman: "2 saat önce", Simge: "bi-wallet2"),
+        (Baslik: "Mavi termos", Yer: "Kütüphane", Zaman: "Dün", Simge: "bi-cup-straw"),
+        (Baslik: "Anahtarlık (3 anahtar)", Yer: "Yemekhane", Zaman: "2 gün önce", Simge: "bi-key")
+    };
+
+    var ornekKayiplar = new[]
+    {
+        (Baslik: "Kablosuz kulaklık kutusu", Yer: "Mühendislik Fakültesi", Zaman: "Bugün", Simge: "bi-earbuds"),
+        (Baslik: "Öğrenci kimlik kartı", Yer: "Kantin", Zaman: "Dün", Simge: "bi-person-vcard"),
+        (Baslik: "Lineer Cebir kitabı", Yer: "Merkezi Derslik", Zaman: "3 gün önce", Simge: "bi-book")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="p-4 p-md-5 mb-4 bg-light rounded-3 border">
+    <h1 class="display-6 fw-bold">Kampüste bir şey mi kaybettin?</h1>
+    <p class="lead mb-4">
+        Kayıp ve bulunan eşyalar tek yerde. İlanını aç, eşyan sahibine güvenle ulaşsın.
+    </p>
+    <form class="row g-2" onsubmit="return false;">
+        <div class="col-12 col-md-9">
+            <input class="form-control form-control-lg" placeholder="Ne arıyorsun? (ör. siyah cüzdan)" disabled />
+        </div>
+        <div class="col-12 col-md-3 d-grid">
+            <button class="btn btn-primary btn-lg" type="button" disabled>
+                <i class="bi bi-search me-1"></i>Ara
+            </button>
+        </div>
+    </form>
+</section>
+
+<h2 class="h4 mb-3">Kategoriler</h2>
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Henüz kategori yok. <code>dotnet ef database update</code> çalıştırıldı mı?</div>
+}
+else
+{
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 mb-5">
+        @foreach (var kategori in Model)
+        {
+            <div class="col">
+                <div class="card h-100 text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="bi @kategori.Icon fs-2 text-primary"></i>
+                        <div class="mt-2 fw-semibold">@kategori.Name</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <h2 class="h4 mb-3"><i class="bi bi-check2-circle text-success me-1"></i>Son bulunan eşyalar</h2>
+        <div class="list-group">
+            @foreach (var ilan in ornekBulunanlar)
+            {
+                <div class="list-group-item d-flex align-items-center gap-3">
+                    <i class="bi @ilan.Simge fs-3 text-success"></i>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">@ilan.Baslik</div>
+                        <div class="small text-muted"><i class="bi bi-geo-alt"></i> @ilan.Yer · @ilan.Zaman</div>
+                    </div>
+                    <span class="badge text-bg-secondary">Örnek</span>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <h2 class="h4 mb-3"><i class="bi bi-question-circle text-danger me-1"></i>Son kayıp ilanları</h2>
+        <div class="list-group">
+            @foreach (var ilan in ornekKayiplar)
+            {
+                <div class="list-group-item d-flex align-items-center gap-3">
+                    <i class="bi @ilan.Simge fs-3 text-danger"></i>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">@ilan.Baslik</div>
+                        <div class="small text-muted"><i class="bi bi-geo-alt"></i> @ilan.Yer · @ilan.Zaman</div>
+                    </div>
+                    <span class="badge text-bg-secondary">Örnek</span>
+                </div>
+            }
+        </div>
+    </div>
 </div>

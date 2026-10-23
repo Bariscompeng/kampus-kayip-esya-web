@@ -1,0 +1,25 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "bootstrap-icons@1.11.3",
+      "destination": "wwwroot/lib/bootstrap-icons",
+      "files": [
+        "font/bootstrap-icons.min.css",
+        "font/fonts/bootstrap-icons.woff",
+        "font/fonts/bootstrap-icons.woff2"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "startbootstrap-sb-admin@7.0.7",
+      "destination": "wwwroot/lib/sb-admin",
+      "files": [
+        "dist/css/styles.css",
+        "dist/js/scripts.js",
+        "LICENSE"
+      ]
+    }
+  ]
+}
