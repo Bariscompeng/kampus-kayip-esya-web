@@ -426,3 +426,10 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Kullanıcı yüklemeleri (fotoğraflar) depoya girmez
+src/KampusKayipEsya.Web/wwwroot/uploads/*
+!src/KampusKayipEsya.Web/wwwroot/uploads/.gitkeep
+
+# macOS
+.DS_Store
