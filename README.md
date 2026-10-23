@@ -23,10 +23,11 @@ ASP.NET Core MVC (.NET 10) · MS SQL Server · Entity Framework Core (migration)
 ├── src/KampusKayipEsya.Web/   MVC + API projesi
 │   ├── Areas/Admin/  Areas/Gorevli/
 │   ├── Controllers/  Controllers/Api/
-│   ├── Data/                  AppDbContext, Migrations/
+│   ├── Data/                  AppDbContext, SeedData, Migrations/
 │   ├── Models/  ViewModels/  Dtos/
 │   ├── Services/  Hubs/  BackgroundJobs/
-│   └── wwwroot/lib/           istemci kütüphaneleri
+│   └── wwwroot/lib/           istemci kütüphaneleri (LibMan, CDN yok)
+├── docs/                      API.md · KARARLAR.md
 ├── global.json                .NET SDK sürümü
 └── KampusKayipEsya.slnx
 ```
@@ -69,15 +70,18 @@ dotnet ef database update
 dotnet run --launch-profile http
 ```
 
-Tarayıcıda http://localhost:5227 açılır.
+Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı görünür.
 
 **Migration'lar**
 
 | Migration | İçerik |
 |---|---|
 | `Initial` | Identity tabloları (AspNetUsers…), Categories, Locations, Items ve ilişkileri |
+| `SeedLookups` | 7 kategori (Bootstrap ikon adlarıyla) ve 8 kampüs konumu |
 
 ## Lisanslar
 
 - [Bootstrap](https://getbootstrap.com/) 5.3 — MIT
+- [Bootstrap Icons](https://icons.getbootstrap.com/) 1.11.3 — MIT
+- [Start Bootstrap SB Admin](https://startbootstrap.com/template/sb-admin) 7.0.7 — MIT (`wwwroot/lib/sb-admin/LICENSE`)
 - [jQuery](https://jquery.com/), [jQuery Validation](https://jqueryvalidation.org/) — MIT
