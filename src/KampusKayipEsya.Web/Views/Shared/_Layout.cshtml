@@ -39,10 +39,18 @@
                                 <i class="bi bi-plus-circle me-1"></i>İlan Aç
                             </a>
                         </li>
-                        @if (User.IsInRole("Admin") || User.IsInRole("Gorevli"))
+                        @if (User.IsInRole(Roles.Gorevli) || User.IsInRole(Roles.Admin))
                         {
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#" aria-disabled="true">
+                                <a class="nav-link" asp-area="Gorevli" asp-controller="Home" asp-action="Index">
+                                    <i class="bi bi-clipboard-check me-1"></i>Görevli
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
                                     <i class="bi bi-speedometer2 me-1"></i>Yönetim
                                 </a>
                             </li>
