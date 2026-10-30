@@ -62,7 +62,16 @@ docker run -d --name kampus-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='<SIFRE>' 
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=KampusKayipEsya;User Id=sa;Password=<SIFRE>;TrustServerCertificate=True"
 ```
 
-**3. Veritabanını migration ile oluşturun ve çalıştırın**
+**3. Admin ve test görevlisi şifrelerini girin** (uygulama açılışında roller ve bu iki hesap otomatik oluşur; şifre girilmezse hesap atlanır)
+
+```powershell
+dotnet user-secrets set "Seed:Admin:Password" "<ADMIN_SIFRESI>"
+dotnet user-secrets set "Seed:Gorevli:Password" "<GOREVLI_SIFRESI>"
+```
+
+E-posta adresleri `appsettings.json`'da: `admin@ankara.edu.tr`, `gorevli@ankara.edu.tr`. Şifreler en az 8 karakter; büyük/küçük harf, rakam ve sembol içermeli.
+
+**4. Veritabanını migration ile oluşturun ve çalıştırın**
 
 ```powershell
 dotnet build
@@ -71,6 +80,18 @@ dotnet run --launch-profile http
 ```
 
 Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı görünür.
+
+**Roller ve kayıt**
+
+- Kayıt yalnızca `appsettings.json` → `AllowedEmailDomains` listesindeki alan adlarıyla (alt alan adları dahil, ör. `ogrenci.ankara.edu.tr`) yapılır.
+- Yeni kayıt otomatik olarak `Ogrenci` rolünü alır. `Gorevli` ve `Admin` rollerini yalnızca admin verir.
+- `/Admin` yalnızca `Admin`; `/Gorevli` ise `Gorevli` ve `Admin` rolüne açıktır.
+
+**Yönetim paneli**
+
+- `admin@ankara.edu.tr` ile giriş yapınca menüde **Yönetim** çıkar (`/Admin`). Panel SB Admin şablonuyla, `Views/Shared/_AdminLayout.cshtml`.
+- **Kategoriler** (`/Admin/Categories`) ve **Konumlar** (`/Admin/Locations`): ekleme, düzenleme, silme. İlana bağlı bir kategori ya da konum silinemez.
+- Koordinatlar isteğe bağlıdır; virgül ya da nokta ile girilebilir (ör. `39,9334`).
 
 **Migration'lar**
 

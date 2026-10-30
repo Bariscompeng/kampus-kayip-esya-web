@@ -38,3 +38,21 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | `Category.Icon` Bootstrap Icons adı tutar | Web ve iOS aynı ikon adını API'den okur | ☐ Şeyma ☐ Barış |
 | İstemci kütüphaneleri LibMan ile `wwwroot/lib`'e indirilir, CDN kullanılmaz | Gösterimde internet olmasa da sayfa bozulmaz | ☐ Şeyma ☐ Barış |
 | Yönetici paneli şablonu: Start Bootstrap SB Admin 7.0.7 (MIT) | Bootstrap 5 tabanlı, ücretsiz | ☐ Şeyma ☐ Barış |
+
+## Teknik kararlar (2. hafta)
+
+| Karar | Gerekçe | Onay |
+|---|---|---|
+| Hazır Identity UI kaldırıldı; kayıt/giriş/çıkış kendi `AccountController`'ımızda (`/Account/...`) | Hazır `/Identity/Account/Register` sayfası okul e-postası kontrolünü atlatıyordu | ☐ Şeyma ☐ Barış |
+| İzinli alan adları `appsettings.json` → `AllowedEmailDomains` (şimdilik `ankara.edu.tr`); alt alan adları da kabul edilir | `ogrenci.ankara.edu.tr` ve personel adresleri tek satırla kapsanır. **Gerçek alan adları teyit edilecek** | ☐ Şeyma ☐ Barış |
+| Okul e-postası kontrolü `IEmailDomainValidator` servisinde | MVC kaydı ve 3. haftadaki `/api/auth/register` aynı kuralı kullanır | ☐ Şeyma ☐ Barış |
+| Roller `Roles` sabit sınıfında: `Admin`, `Gorevli`, `Ogrenci`; yeni kayıt `Ogrenci` | Rol adları tek yerde; kodda düz metin yok | ☐ Şeyma ☐ Barış |
+| Admin ve test görevlisi açılışta seed edilir; şifreler user-secrets'ta (`Seed:Admin:Password`, `Seed:Gorevli:Password`) | Şifre depoya girmez; şifre yoksa uygulama yine açılır | ☐ Şeyma ☐ Barış |
+| Area controller'ları `AdminControllerBase` / `GorevliControllerBase`'den türer | `[Authorize(Roles=...)]` her controller'a ayrı ayrı yazılmaz, unutulamaz | ☐ Şeyma ☐ Barış |
+| Giriş e-posta ile; `UserName = Email`; 5 hatalı denemede geçici kilit | Pasif kullanıcı (`LockoutEnd`) aynı mekanizmayla girişte durdurulur | ☐ Şeyma ☐ Barış |
+| Kayıt/giriş formlarında `[StringLength]`, öğrenci no `^\d{8}$` (personel boş bırakır), ad soyad yalnızca harf; tüm mesajlar Türkçe | Sunucu ve tarayıcı aynı kuralı uygular (`_ValidationScriptsPartial`) | ☐ Şeyma ☐ Barış |
+| Identity hata mesajları `TurkishIdentityErrorDescriber` ile Türkçe | "Passwords must have…" gibi İngilizce mesajlar kullanıcıya çıkmaz | ☐ Şeyma ☐ Barış |
+| Yönetim ve görevli alanları ortak `_AdminLayout` (SB Admin) kullanır; yan menü role göre değişir | Tek panel görünümü; görevli yalnızca kendi bağlantılarını görür | ☐ Şeyma ☐ Barış |
+| Admin formları entity'ye değil form ViewModel'ine bağlanır (`CategoryFormViewModel`, `LocationFormViewModel`) | Formdan beklenmeyen alan gönderilip değiştirilemez; doğrulama tek yerde | ☐ Şeyma ☐ Barış |
+| İlana bağlı kategori/konum silinmez: silme sayfasında uyarı + sunucuda sayım + veritabanında `Restrict` | Üç katmanlı koruma; POST ile zorlansa da silinmez | ☐ Şeyma ☐ Barış |
+| Koordinatlar formda metin alınır, virgül/nokta kabul edilir, `InvariantCulture` ile sayıya çevrilir | Türkçe Windows'ta `39.93` yanlış okunmasın; enlem ±90, boylam ±180 kontrolü | ☐ Şeyma ☐ Barış |
