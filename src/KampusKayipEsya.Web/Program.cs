@@ -22,7 +22,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
         options.Stores.MaxLengthForKeys = 128;
     })
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddErrorDescriber<TurkishIdentityErrorDescriber>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

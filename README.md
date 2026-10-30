@@ -87,6 +87,12 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - Yeni kayıt otomatik olarak `Ogrenci` rolünü alır. `Gorevli` ve `Admin` rollerini yalnızca admin verir.
 - `/Admin` yalnızca `Admin`; `/Gorevli` ise `Gorevli` ve `Admin` rolüne açıktır.
 
+**Yönetim paneli**
+
+- `admin@ankara.edu.tr` ile giriş yapınca menüde **Yönetim** çıkar (`/Admin`). Panel SB Admin şablonuyla, `Views/Shared/_AdminLayout.cshtml`.
+- **Kategoriler** (`/Admin/Categories`) ve **Konumlar** (`/Admin/Locations`): ekleme, düzenleme, silme. İlana bağlı bir kategori ya da konum silinemez.
+- Koordinatlar isteğe bağlıdır; virgül ya da nokta ile girilebilir (ör. `39,9334`).
+
 **Migration'lar**
 
 | Migration | İçerik |
