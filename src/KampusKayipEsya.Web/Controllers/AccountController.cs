@@ -44,8 +44,8 @@ public class AccountController(
         var result = await userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
+            foreach (var description in result.Errors.Select(e => e.Description).Distinct())
+                ModelState.AddModelError(string.Empty, description);
             return View(model);
         }
 
