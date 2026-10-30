@@ -50,3 +50,9 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | Admin ve test görevlisi açılışta seed edilir; şifreler user-secrets'ta (`Seed:Admin:Password`, `Seed:Gorevli:Password`) | Şifre depoya girmez; şifre yoksa uygulama yine açılır | ☐ Şeyma ☐ Barış |
 | Area controller'ları `AdminControllerBase` / `GorevliControllerBase`'den türer | `[Authorize(Roles=...)]` her controller'a ayrı ayrı yazılmaz, unutulamaz | ☐ Şeyma ☐ Barış |
 | Giriş e-posta ile; `UserName = Email`; 5 hatalı denemede geçici kilit | Pasif kullanıcı (`LockoutEnd`) aynı mekanizmayla girişte durdurulur | ☐ Şeyma ☐ Barış |
+| Kayıt/giriş formlarında `[StringLength]`, öğrenci no `^\d{8}$` (personel boş bırakır), ad soyad yalnızca harf; tüm mesajlar Türkçe | Sunucu ve tarayıcı aynı kuralı uygular (`_ValidationScriptsPartial`) | ☐ Şeyma ☐ Barış |
+| Identity hata mesajları `TurkishIdentityErrorDescriber` ile Türkçe | "Passwords must have…" gibi İngilizce mesajlar kullanıcıya çıkmaz | ☐ Şeyma ☐ Barış |
+| Yönetim ve görevli alanları ortak `_AdminLayout` (SB Admin) kullanır; yan menü role göre değişir | Tek panel görünümü; görevli yalnızca kendi bağlantılarını görür | ☐ Şeyma ☐ Barış |
+| Admin formları entity'ye değil form ViewModel'ine bağlanır (`CategoryFormViewModel`, `LocationFormViewModel`) | Formdan beklenmeyen alan gönderilip değiştirilemez; doğrulama tek yerde | ☐ Şeyma ☐ Barış |
+| İlana bağlı kategori/konum silinmez: silme sayfasında uyarı + sunucuda sayım + veritabanında `Restrict` | Üç katmanlı koruma; POST ile zorlansa da silinmez | ☐ Şeyma ☐ Barış |
+| Koordinatlar formda metin alınır, virgül/nokta kabul edilir, `InvariantCulture` ile sayıya çevrilir | Türkçe Windows'ta `39.93` yanlış okunmasın; enlem ±90, boylam ±180 kontrolü | ☐ Şeyma ☐ Barış |
