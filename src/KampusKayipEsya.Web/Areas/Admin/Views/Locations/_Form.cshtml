@@ -1,0 +1,32 @@
+@model LocationFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="mb-3">
+    <label asp-for="Building" class="form-label"></label>
+    <input asp-for="Building" class="form-control" maxlength="100" placeholder="Mühendislik Fakültesi" />
+    <span asp-validation-for="Building" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="FloorOrRoom" class="form-label"></label>
+    <input asp-for="FloorOrRoom" class="form-control" maxlength="100" placeholder="Zemin kat, Amfi 2 … (isteğe bağlı)" />
+    <span asp-validation-for="FloorOrRoom" class="text-danger small"></span>
+</div>
+
+<div class="row g-3 mb-2">
+    <div class="col-12 col-sm-6">
+        <label asp-for="Latitude" class="form-label"></label>
+        <input asp-for="Latitude" class="form-control" inputmode="decimal" placeholder="39.9334" />
+        <span asp-validation-for="Latitude" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-sm-6">
+        <label asp-for="Longitude" class="form-label"></label>
+        <input asp-for="Longitude" class="form-control" inputmode="decimal" placeholder="32.8597" />
+        <span asp-validation-for="Longitude" class="text-danger small"></span>
+    </div>
+</div>
+<div class="form-text mb-4">
+    İsteğe bağlı. Google Haritalar'da binaya sağ tıklayınca çıkan ilk satırdaki iki sayıyı girin. Virgül ya da nokta kullanılabilir.
+</div>
