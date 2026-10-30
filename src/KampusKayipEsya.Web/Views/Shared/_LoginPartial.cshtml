@@ -1,18 +1,17 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using KampusKayipEsya.Web.Models
 @inject SignInManager<AppUser> SignInManager
-@inject UserManager<AppUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Hesabım">
+        <span class="nav-link">
             <i class="bi bi-person-circle me-1"></i>@User.Identity?.Name
-        </a>
+        </span>
     </li>
     <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
             <button type="submit" class="nav-link btn btn-link">Çıkış</button>
         </form>
     </li>
@@ -20,10 +19,10 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Kayıt Ol</a>
+        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Giriş</a>
+        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Giriş</a>
     </li>
 }
 </ul>
