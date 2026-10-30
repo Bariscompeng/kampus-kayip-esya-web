@@ -1,0 +1,35 @@
+@model CategoryListItem
+@{
+    ViewData["Title"] = "Kategoriyi sil";
+}
+
+<h1 class="h3 mb-4"><i class="bi bi-trash me-2"></i>Kategoriyi sil</h1>
+
+<div class="card col-12 col-lg-8 col-xl-6">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <i class="bi @(Model.Icon ?? "bi-question-square") fs-1 text-primary"></i>
+            <div>
+                <div class="fs-5 fw-semibold">@Model.Name</div>
+                <div class="text-muted small">Bağlı ilan: @Model.ItemCount</div>
+            </div>
+        </div>
+
+        @if (Model.ItemCount > 0)
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Bu kategoriye bağlı <strong>@Model.ItemCount</strong> ilan var; ilanlar başka bir kategoriye taşınmadan silinemez.
+            </div>
+            <a class="btn btn-outline-secondary" asp-action="Index">Listeye dön</a>
+        }
+        else
+        {
+            <p>Bu kategoriyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Evet, sil</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Vazgeç</a>
+            </form>
+        }
+    </div>
+</div>
