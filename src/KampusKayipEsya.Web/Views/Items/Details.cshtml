@@ -1,0 +1,122 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models.Enums
+@model KampusKayipEsya.Web.ViewModels.ItemDetailsViewModel
+@{
+    var ilan = Model.Item;
+    var tr = new CultureInfo("tr-TR");
+    ViewData["Title"] = ilan.Title;
+    var turRengi = ilan.Type == ItemType.Found ? "success" : "danger";
+}
+
+@if (TempData["Basari"] is string basari)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@basari
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+
+@if (ilan.Status != ItemStatus.Published)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-hourglass-split me-1"></i>
+        Bu ilan şu an <strong>@ilan.Status.ToTurkish().ToLower(tr)</strong>; yalnızca ilan sahibi ve kayıp eşya bürosu görevlileri görebilir.
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-12 col-lg-7">
+        @if (ilan.Photos.Count > 0)
+        {
+            <div id="ilanFotograflari" class="carousel slide rounded-3 overflow-hidden border bg-dark">
+                @if (ilan.Photos.Count > 1)
+                {
+                    <div class="carousel-indicators">
+                        @for (var i = 0; i < ilan.Photos.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#ilanFotograflari" data-bs-slide-to="@i"
+                                    class="@(i == 0 ? "active" : "")" aria-label="Fotoğraf @(i + 1)"></button>
+                        }
+                    </div>
+                }
+                <div class="carousel-inner">
+                    @foreach (var (foto, sira) in ilan.Photos.Select((f, i) => (f, i)))
+                    {
+                        <div class="carousel-item @(sira == 0 ? "active" : "")">
+                            <img src="@Url.Content("~/" + foto.Path)" class="d-block w-100 object-fit-contain" style="height: 24rem" alt="@ilan.Title – fotoğraf @(sira + 1)" />
+                        </div>
+                    }
+                </div>
+                @if (ilan.Photos.Count > 1)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#ilanFotograflari" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Önceki</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#ilanFotograflari" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Sonraki</span>
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rounded-3 border bg-light d-flex flex-column align-items-center justify-content-center text-muted" style="height: 24rem">
+                <i class="bi @(ilan.Category.Icon ?? "bi-image") display-1"></i>
+                <div class="mt-2">Fotoğraf eklenmemiş</div>
+            </div>
+        }
+    </div>
+
+    <div class="col-12 col-lg-5">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+            <span class="badge text-bg-@turRengi fs-6">@ilan.Type.ToTurkish()</span>
+            <span class="badge @ilan.Status.BadgeClass() fs-6">@ilan.Status.ToTurkish()</span>
+        </div>
+        <h1 class="h3">@ilan.Title</h1>
+
+        <dl class="row mt-3 mb-3">
+            <dt class="col-5 text-muted fw-normal"><i class="bi @(ilan.Category.Icon ?? "bi-tag") me-1"></i>Kategori</dt>
+            <dd class="col-7">@ilan.Category.Name</dd>
+            <dt class="col-5 text-muted fw-normal"><i class="bi bi-geo-alt me-1"></i>Konum</dt>
+            <dd class="col-7">@ilan.Location.Building@(ilan.Location.FloorOrRoom is null ? "" : " – " + ilan.Location.FloorOrRoom)</dd>
+            <dt class="col-5 text-muted fw-normal"><i class="bi bi-calendar-event me-1"></i>@(ilan.Type == ItemType.Found ? "Bulunma" : "Kaybolma") tarihi</dt>
+            <dd class="col-7">@ilan.EventDate.ToString("d MMMM yyyy", tr)</dd>
+            <dt class="col-5 text-muted fw-normal"><i class="bi bi-person me-1"></i>İlanı açan</dt>
+            <dd class="col-7">@Model.OwnerShortName</dd>
+            <dt class="col-5 text-muted fw-normal"><i class="bi bi-clock me-1"></i>İlan tarihi</dt>
+            <dd class="col-7">@ilan.CreatedAt.ToLocalTime().ToString("d MMMM yyyy HH:mm", tr)</dd>
+        </dl>
+
+        <h2 class="h6 text-muted">Açıklama</h2>
+        <p style="white-space: pre-line">@ilan.Description</p>
+
+        @if (Model.CanSeeQuestion && ilan.VerificationQuestion is not null)
+        {
+            <div class="border rounded-3 p-3 bg-light mb-3 small">
+                <div class="fw-semibold"><i class="bi bi-shield-lock me-1"></i>Doğrulama sorusu</div>
+                @ilan.VerificationQuestion
+                <div class="text-muted mt-1">Talepte bulunan kişi bu soruyu cevaplayacak.</div>
+            </div>
+        }
+
+        <div class="d-grid gap-2">
+            @if (Model.IsOwner)
+            {
+                <button class="btn btn-outline-primary" disabled title="4. haftada">
+                    <i class="bi bi-pencil me-1"></i>Düzenle
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-@turRengi" disabled title="5. haftada">
+                    <i class="bi bi-hand-index me-1"></i>@(ilan.Type == ItemType.Found ? "Bu benim" : "Ben buldum")
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" disabled title="7. haftada">
+                    <i class="bi bi-flag me-1"></i>Şikâyet et
+                </button>
+            }
+        </div>
+    </div>
+</div>
