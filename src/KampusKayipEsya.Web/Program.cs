@@ -34,6 +34,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddSingleton<IEmailDomainValidator>(new EmailDomainValidator(
     builder.Configuration.GetSection("AllowedEmailDomains").Get<string[]>() ?? []));
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -53,6 +54,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
