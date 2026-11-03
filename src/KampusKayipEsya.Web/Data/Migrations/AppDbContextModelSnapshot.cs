@@ -244,6 +244,32 @@ namespace KampusKayipEsya.Web.Data.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "Order");
+
+                    b.ToTable("ItemPhotos");
+                });
+
             modelBuilder.Entity("KampusKayipEsya.Web.Models.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -488,6 +514,17 @@ namespace KampusKayipEsya.Web.Data.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemPhoto", b =>
+                {
+                    b.HasOne("KampusKayipEsya.Web.Models.Item", "Item")
+                        .WithMany("Photos")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -547,6 +584,11 @@ namespace KampusKayipEsya.Web.Data.Migrations
             modelBuilder.Entity("KampusKayipEsya.Web.Models.Category", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("KampusKayipEsya.Web.Models.Item", b =>
+                {
+                    b.Navigation("Photos");
                 });
 
             modelBuilder.Entity("KampusKayipEsya.Web.Models.Location", b =>

@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Item> Items => Set<Item>();
+    public DbSet<ItemPhoto> ItemPhotos => Set<ItemPhoto>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -53,6 +54,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                 .HasForeignKey(i => i.ApprovedById).OnDelete(DeleteBehavior.Restrict);
 
             e.HasIndex(i => new { i.Status, i.Type, i.EventDate });
+        });
+
+        builder.Entity<ItemPhoto>(e =>
+        {
+            e.Property(p => p.Path).HasMaxLength(300).IsRequired();
+            e.HasOne(p => p.Item).WithMany(i => i.Photos)
+                .HasForeignKey(p => p.ItemId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(p => new { p.ItemId, p.Order });
         });
 
         SeedData.Apply(builder);

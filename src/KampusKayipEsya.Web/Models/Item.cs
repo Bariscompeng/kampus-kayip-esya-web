@@ -27,4 +27,6 @@ public class Item
     public string? ApprovedById { get; set; }
     public AppUser? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }
+
+    public ICollection<ItemPhoto> Photos { get; set; } = new List<ItemPhoto>();
 }
