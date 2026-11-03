@@ -56,3 +56,16 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | Admin formları entity'ye değil form ViewModel'ine bağlanır (`CategoryFormViewModel`, `LocationFormViewModel`) | Formdan beklenmeyen alan gönderilip değiştirilemez; doğrulama tek yerde | ☐ Şeyma ☐ Barış |
 | İlana bağlı kategori/konum silinmez: silme sayfasında uyarı + sunucuda sayım + veritabanında `Restrict` | Üç katmanlı koruma; POST ile zorlansa da silinmez | ☐ Şeyma ☐ Barış |
 | Koordinatlar formda metin alınır, virgül/nokta kabul edilir, `InvariantCulture` ile sayıya çevrilir | Türkçe Windows'ta `39.93` yanlış okunmasın; enlem ±90, boylam ±180 kontrolü | ☐ Şeyma ☐ Barış |
+
+## Teknik kararlar (3. hafta)
+
+| Karar | Gerekçe | Onay |
+|---|---|---|
+| Fotoğraflar `ItemPhotos` tablosunda (`ItemId`, `Path`, `Order`); ilan silinince satırlar `Cascade` ile silinir | Fotoğrafın ilansız anlamı yok; diğer ilişkilerdeki `Restrict` kuralı burada gerekmiyor | ☐ Şeyma ☐ Barış |
+| Fotoğraf kuralları `PhotoService`'te: en fazla 5 adet, 5 MB, JPG/PNG; uzantı + içerik türü + dosya imzası kontrolü; ad Guid | Sahte uzantılı dosya yüklenemez; dosya adı tahmin edilemez ve çakışmaz. 4. haftadaki `POST /api/items/{id}/photos` aynı servisi kullanacak | ☐ Şeyma ☐ Barış |
+| Dosyalar `wwwroot/uploads/items/{ilanId}/` altında, veritabanında göreli yol; `UseStaticFiles` ile sunulur | `MapStaticAssets` yalnızca derleme anındaki dosyaları sunar, sonradan yüklenenleri sunmaz | ☐ Şeyma ☐ Barış |
+| İlan detay adresi `/items/{id}` | 6. haftadaki bildirim `LinkUrl` biçimiyle aynı; iOS da bu biçimi kullanacak | ☐ Şeyma ☐ Barış |
+| Onay bekleyen/reddedilen ilanı yalnızca sahibi, görevli ve admin görür; diğerlerine 404 | Onaylanmamış içerik yayılmaz; ilanın varlığı da sızmaz | ☐ Şeyma ☐ Barış |
+| Doğrulama sorusu yalnızca "Buldum" ilanında zorunlu ve yalnızca sahibine/görevliye gösterilir | Sorunun cevabını bilmeyen kişinin tahmin yürütmesi zorlaşır | ☐ Şeyma ☐ Barış |
+| İlan sahibinin adı kısaltılmış gösterilir (ör. "Ayşe Y."); e-posta/telefon hiçbir yerde yok | Kişisel bilgi korunur (proje özeti) | ☐ Şeyma ☐ Barış |
+| İlan kaydı şimdilik `ItemsController.Create` içinde; Şeyma'nın `IItemService.CreateAsync` metodu gelince oraya taşınacak | 3. haftada iki iş paralel yürüdü; iş kuralı sonunda tek yerde (servis) olacak | ☐ Şeyma ☐ Barış |

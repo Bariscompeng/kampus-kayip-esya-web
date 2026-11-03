@@ -93,12 +93,21 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - **Kategoriler** (`/Admin/Categories`) ve **Konumlar** (`/Admin/Locations`): ekleme, düzenleme, silme. İlana bağlı bir kategori ya da konum silinemez.
 - Koordinatlar isteğe bağlıdır; virgül ya da nokta ile girilebilir (ör. `39,9334`).
 
+**İlan açma ve detay**
+
+- Giriş yapan herkes menüden **İlan Aç** (`/Items/Create`) ile "Kaybettim" ya da "Buldum" ilanı açabilir. İlan **Onay bekliyor** durumunda açılır; görevli onaylayınca herkese görünür.
+- "Buldum" ilanında doğrulama sorusu zorunludur; soruyu yalnızca ilan sahibi ve görevliler görür.
+- Fotoğraf: en fazla 5 adet, her biri en fazla 5 MB, yalnızca JPG/PNG (dosya içeriği de kontrol edilir). İlk fotoğraf kapak olur.
+- Fotoğraflar `wwwroot/uploads/items/{ilanId}/` altına Guid adıyla kaydedilir; bu klasör depoya girmez.
+- Detay sayfası: `/items/{id}`. Onay bekleyen ilanı yalnızca sahibi, görevli ve admin görebilir.
+
 **Migration'lar**
 
 | Migration | İçerik |
 |---|---|
 | `Initial` | Identity tabloları (AspNetUsers…), Categories, Locations, Items ve ilişkileri |
 | `SeedLookups` | 7 kategori (Bootstrap ikon adlarıyla) ve 8 kampüs konumu |
+| `ItemPhotos` | İlan fotoğrafları tablosu (dosya yolu, sıra); ilan silinince fotoğraf satırları da silinir |
 
 ## Lisanslar
 
