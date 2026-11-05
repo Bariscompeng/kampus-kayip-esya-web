@@ -71,7 +71,19 @@ dotnet user-secrets set "Seed:Gorevli:Password" "<GOREVLI_SIFRESI>"
 
 E-posta adresleri `appsettings.json`'da: `admin@ankara.edu.tr`, `gorevli@ankara.edu.tr`. Şifreler en az 8 karakter; büyük/küçük harf, rakam ve sembol içermeli.
 
-**4. Veritabanını migration ile oluşturun ve çalıştırın**
+**4. JWT imza anahtarını girin** (API için gerekli; en az 32 bayt olmalı, girilmezse uygulama açılmaz)
+
+```powershell
+# Windows
+dotnet user-secrets set "Jwt:Key" ([Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)))
+```
+
+```bash
+# Mac
+dotnet user-secrets set "Jwt:Key" "$(openssl rand -base64 48)"
+```
+
+**5. Veritabanını migration ile oluşturun ve çalıştırın**
 
 ```powershell
 dotnet build
@@ -101,6 +113,11 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - Fotoğraflar `wwwroot/uploads/items/{ilanId}/` altına Guid adıyla kaydedilir; bu klasör depoya girmez.
 - Detay sayfası: `/items/{id}`. Onay bekleyen ilanı yalnızca sahibi, görevli ve admin görebilir.
 
+**Web API**
+
+- Swagger: http://localhost:5227/swagger (yalnızca `Development`). `POST /api/auth/login` yanıtındaki token'ı **Authorize** düğmesine girin.
+- Uçlar ve kurallar için: [docs/API.md](docs/API.md).
+
 **Migration'lar**
 
 | Migration | İçerik |
@@ -115,3 +132,4 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - [Bootstrap Icons](https://icons.getbootstrap.com/) 1.11.3 — MIT
 - [Start Bootstrap SB Admin](https://startbootstrap.com/template/sb-admin) 7.0.7 — MIT (`wwwroot/lib/sb-admin/LICENSE`)
 - [jQuery](https://jquery.com/), [jQuery Validation](https://jqueryvalidation.org/) — MIT
+- [Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) 10.3 — MIT
