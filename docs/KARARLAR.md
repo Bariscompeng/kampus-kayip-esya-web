@@ -68,4 +68,11 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | Onay bekleyen/reddedilen ilanı yalnızca sahibi, görevli ve admin görür; diğerlerine 404 | Onaylanmamış içerik yayılmaz; ilanın varlığı da sızmaz | ☐ Şeyma ☐ Barış |
 | Doğrulama sorusu yalnızca "Buldum" ilanında zorunlu ve yalnızca sahibine/görevliye gösterilir | Sorunun cevabını bilmeyen kişinin tahmin yürütmesi zorlaşır | ☐ Şeyma ☐ Barış |
 | İlan sahibinin adı kısaltılmış gösterilir (ör. "Ayşe Y."); e-posta/telefon hiçbir yerde yok | Kişisel bilgi korunur (proje özeti) | ☐ Şeyma ☐ Barış |
-| İlan kaydı şimdilik `ItemsController.Create` içinde; Şeyma'nın `IItemService.CreateAsync` metodu gelince oraya taşınacak | 3. haftada iki iş paralel yürüdü; iş kuralı sonunda tek yerde (servis) olacak | ☐ Şeyma ☐ Barış |
+| İlan kuralları `IItemService`'te; MVC `ItemsController` ve `/api/items` aynı servisi kullanır | İş kuralı ve görme yetkisi tek yerde; web ile API ayrışmaz | ☐ Şeyma ☐ Barış |
+| API yalnızca JWT kabul eder (`ApiControllerBase`); site çerezi API'de geçmez, varsayılan şema çerez kalır | MVC akışı değişmez; çerez kullanılmadığı için API'de CSRF riski yok | ☐ Şeyma ☐ Barış |
+| İmza anahtarı `Jwt:Key` yalnızca user-secrets'ta, en az 32 bayt; yoksa uygulama açılmaz | Gizli bilgi depoya girmez; zayıf ya da boş anahtarla çalışılmaz | ☐ Şeyma ☐ Barış |
+| Token 24 saat geçerli, yenileme ucu yok; her istekte kullanıcı ve kilit durumu kontrol edilir | Sözleşmede yenileme ucu yok; pasif kullanıcı eski token'la da 401 alır. Rol değişikliği yeni girişte token'a yansır | ☐ Şeyma ☐ Barış |
+| Sahibi ilanı düzenleyince ilan yeniden `Pending` olur ve onay bilgisi silinir; görevlinin düzenlemesi durumu değiştirmez | Onaylı ilana sonradan onaysız içerik yazılamaz | ☐ Şeyma ☐ Barış |
+| `Resolved`/`Archived` ilan düzenlenemez (409); sahibi silemez, görevli silebilir | Teslim geçmişi korunur; görevli gerektiğinde müdahale edebilir | ☐ Şeyma ☐ Barış |
+| İlan silinince satır silinir, fotoğraf klasörü de diskten kaldırılır. 5. haftada talepler eklenince talebi olan ilanın silinmesi yeniden ele alınacak | Sahipsiz dosya kalmaz | ☐ Şeyma ☐ Barış |
+| Swagger yalnızca `Development` ortamında açık (`/swagger`) ve yalnızca `/api` uçlarını listeler | Üretimde API yüzeyi ilan edilmez; MVC sayfaları dokümana karışmaz | ☐ Şeyma ☐ Barış |
