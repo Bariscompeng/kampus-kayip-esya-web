@@ -1,6 +1,6 @@
 using KampusKayipEsya.Web.Data;
+using KampusKayipEsya.Web.Dtos;
 using KampusKayipEsya.Web.Models;
-using KampusKayipEsya.Web.Models.Enums;
 using KampusKayipEsya.Web.Services;
 using KampusKayipEsya.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace KampusKayipEsya.Web.Controllers;
 
 [Authorize]
-public class ItemsController(AppDbContext context, IPhotoService photoService, UserManager<AppUser> userManager) : Controller
+public class ItemsController(AppDbContext context, IItemService itemService, IPhotoService photoService, UserManager<AppUser> userManager) : Controller
 {
     public async Task<IActionResult> Create()
     {
@@ -29,10 +29,11 @@ public class ItemsController(AppDbContext context, IPhotoService photoService, U
         foreach (var hata in photoService.Validate(model.Photos))
             ModelState.AddModelError(nameof(model.Photos), hata);
 
-        if (model.CategoryId is int kategoriId && !await context.Categories.AnyAsync(c => c.Id == kategoriId))
-            ModelState.AddModelError(nameof(model.CategoryId), "Geçerli bir kategori seçin.");
-        if (model.LocationId is int konumId && !await context.Locations.AnyAsync(l => l.Id == konumId))
-            ModelState.AddModelError(nameof(model.LocationId), "Geçerli bir konum seçin.");
+        if (model.CategoryId is int kategoriId && model.LocationId is int konumId)
+        {
+            foreach (var (alan, hata) in await itemService.ValidateReferencesAsync(kategoriId, konumId))
+                ModelState.AddModelError(alan, hata);
+        }
 
         if (!ModelState.IsValid)
         {
@@ -40,25 +41,17 @@ public class ItemsController(AppDbContext context, IPhotoService photoService, U
             return View(model);
         }
 
-        var ilan = new Item
-        {
-            Type = model.Type!.Value,
-            Title = model.Title.Trim(),
-            Description = model.Description.Trim(),
-            EventDate = model.EventDate!.Value.Date,
-            VerificationQuestion = model.Type == ItemType.Found ? model.VerificationQuestion!.Trim() : null,
-            CategoryId = model.CategoryId!.Value,
-            LocationId = model.LocationId!.Value,
-            OwnerId = userManager.GetUserId(User)!,
-            Status = ItemStatus.Pending
-        };
-
-        await using var islem = await context.Database.BeginTransactionAsync();
-        context.Items.Add(ilan);
-        await context.SaveChangesAsync();
-        if (model.Photos.Count > 0)
-            await photoService.SaveAsync(ilan.Id, model.Photos);
-        await islem.CommitAsync();
+        var ilan = await itemService.CreateAsync(
+            new ItemInput(
+                model.Type!.Value,
+                model.Title,
+                model.Description,
+                model.EventDate!.Value,
+                model.CategoryId!.Value,
+                model.LocationId!.Value,
+                model.VerificationQuestion),
+            userManager.GetUserId(User)!,
+            model.Photos);
 
         TempData["Basari"] = "İlanınız alındı. Görevli onayladıktan sonra herkes görebilecek.";
         return RedirectToAction(nameof(Details), new { id = ilan.Id });
@@ -68,20 +61,12 @@ public class ItemsController(AppDbContext context, IPhotoService photoService, U
     [HttpGet("/items/{id:int}")]
     public async Task<IActionResult> Details(int id)
     {
-        var ilan = await context.Items
-            .AsNoTracking()
-            .Include(i => i.Category)
-            .Include(i => i.Location)
-            .Include(i => i.Owner)
-            .Include(i => i.Photos.OrderBy(p => p.Order))
-            .FirstOrDefaultAsync(i => i.Id == id);
+        var izleyen = ItemViewer.From(User);
+        var ilan = await itemService.GetVisibleAsync(id, izleyen);
         if (ilan is null) return NotFound();
 
-        var sahibiMi = ilan.OwnerId == userManager.GetUserId(User);
-        var yetkiliMi = User.IsInRole(Roles.Gorevli) || User.IsInRole(Roles.Admin);
-        if (ilan.Status != ItemStatus.Published && !sahibiMi && !yetkiliMi) return NotFound();
-
-        return View(new ItemDetailsViewModel(ilan, sahibiMi, sahibiMi || yetkiliMi, KisaAd(ilan.Owner.FullName)));
+        var sahibiMi = izleyen.Owns(ilan);
+        return View(new ItemDetailsViewModel(ilan, sahibiMi, sahibiMi || izleyen.IsStaff, ilan.Owner.ShortName));
     }
 
     private async Task ListeleriDoldur(ItemCreateViewModel model)
@@ -97,16 +82,5 @@ public class ItemsController(AppDbContext context, IPhotoService photoService, U
             .OrderBy(l => l.Building).ThenBy(l => l.FloorOrRoom)
             .Select(l => new SelectListItem(l.FloorOrRoom == null ? l.Building : l.Building + " – " + l.FloorOrRoom, l.Id.ToString()))
             .ToListAsync();
-    }
-
-    private static string KisaAd(string adSoyad)
-    {
-        var parcalar = adSoyad.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return parcalar.Length switch
-        {
-            0 => "Kullanıcı",
-            1 => parcalar[0],
-            _ => $"{parcalar[0]} {char.ToUpper(parcalar[^1][0], new System.Globalization.CultureInfo("tr-TR"))}."
-        };
     }
 }
