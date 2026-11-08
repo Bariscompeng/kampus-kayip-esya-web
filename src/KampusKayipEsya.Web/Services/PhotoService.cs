@@ -87,6 +87,13 @@ public class PhotoService(AppDbContext context, IWebHostEnvironment environment)
         }
     }
 
+    public void DeleteAll(int itemId)
+    {
+        var tamKlasor = Path.Combine(environment.WebRootPath, "uploads", "items", itemId.ToString());
+        if (Directory.Exists(tamKlasor))
+            Directory.Delete(tamKlasor, recursive: true);
+    }
+
     private static bool ImzaDogruMu(IFormFile dosya, string uzanti)
     {
         var beklenen = Imzalar[uzanti];
