@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace KampusKayipEsya.Web.Controllers.Api;
 
 [Route("api/items")]
-public class ItemsController(IItemService itemService) : ApiControllerBase
+[Tags("Items")]
+public class ItemsApiController(IItemService itemService) : ApiControllerBase
 {
     [HttpGet]
     [AllowAnonymous]

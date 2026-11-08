@@ -74,8 +74,9 @@ E-posta adresleri `appsettings.json`'da: `admin@ankara.edu.tr`, `gorevli@ankara.
 **4. JWT imza anahtarını girin** (API için gerekli; en az 32 bayt olmalı, girilmezse uygulama açılmaz)
 
 ```powershell
-# Windows
-dotnet user-secrets set "Jwt:Key" ([Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)))
+# Windows (PowerShell 5.1 ve 7)
+$anahtar = New-Object byte[] 48; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($anahtar)
+dotnet user-secrets set "Jwt:Key" ([Convert]::ToBase64String($anahtar))
 ```
 
 ```bash

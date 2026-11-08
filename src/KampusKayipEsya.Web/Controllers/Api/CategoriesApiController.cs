@@ -8,7 +8,8 @@ namespace KampusKayipEsya.Web.Controllers.Api;
 
 [Route("api/categories")]
 [AllowAnonymous]
-public class CategoriesController(AppDbContext context) : ApiControllerBase
+[Tags("Categories")]
+public class CategoriesApiController(AppDbContext context) : ApiControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<CategoryDto>>> GetAll(CancellationToken cancellationToken) =>
