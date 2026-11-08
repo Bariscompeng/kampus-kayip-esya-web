@@ -8,7 +8,8 @@ namespace KampusKayipEsya.Web.Controllers.Api;
 
 [Route("api/locations")]
 [AllowAnonymous]
-public class LocationsController(AppDbContext context) : ApiControllerBase
+[Tags("Locations")]
+public class LocationsApiController(AppDbContext context) : ApiControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<LocationDto>>> GetAll(CancellationToken cancellationToken) =>
