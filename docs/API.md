@@ -27,8 +27,8 @@ iOS projesi (BLM4587) bu uçları kullanır. Bir uç değişecekse önce diğer 
 | `/api/items/{id}` | GET | Şeyma | 3 | 4. hafta | ✅ |
 | `/api/items` | POST | Şeyma | 3 | 5. hafta | ✅ |
 | `/api/items/{id}` | PUT / DELETE | Şeyma | 3 | 6. hafta | ✅ |
-| `/api/items/mine` | GET | Barış | 4 (ek) | 6. hafta | ⏳ |
-| `/api/items/{id}/photos` | POST (multipart, `files`) | Barış | 4 (ek) | 5. hafta | ⏳ |
+| `/api/items/mine` | GET | Barış | 4 (ek) | 6. hafta | ✅ |
+| `/api/items/{id}/photos` | POST (multipart, `files`) | Barış | 4 (ek) | 5. hafta | ✅ |
 | `/api/items/{id}/claims` | POST | Şeyma | 5 | 6. hafta | ⏳ |
 | `/api/claims/mine` · `/incoming` | GET | Şeyma | 5 | 6. hafta | ⏳ |
 | `/api/claims/{id}/approve` · `/reject` | POST | Şeyma | 5 | 6. hafta | ⏳ |
@@ -57,12 +57,15 @@ Token 24 saat geçerlidir (`Jwt:ExpiresMinutes`); yenileme ucu yok, süresi dolu
 | `POST /api/items` | gerekli | `{ type, title, categoryId, locationId, eventDate, description, verificationQuestion? }` | 201 ilan detayı, `Pending` |
 | `PUT /api/items/{id}` | sahibi / görevli | `POST` ile aynı | 200 ilan detayı |
 | `DELETE /api/items/{id}` | sahibi / görevli | — | 204 |
+| `GET /api/items/mine` | gerekli | sorgu: `status?, page=1, pageSize=20` (en fazla 50) | 200 liste yanıtı; kullanıcının **tüm durumlardaki** ilanları |
+| `POST /api/items/{id}/photos` | yalnızca sahibi | `multipart/form-data`, alan adı `files` (bir ya da birden çok dosya) | 200 ilan detayı (`photoUrls` güncel) |
 
 - Liste öğesi: `{ id, type, status, title, categoryId, categoryName, categoryIcon, locationId, locationName, eventDate, createdAt, coverPhotoUrl }`.
 - İlan detayı: liste alanları (`coverPhotoUrl` hariç) + `{ description, isAtOffice, ownerName, isOwner, verificationQuestion, photoUrls }`. `verificationQuestion` yalnızca sahibine ve görevliye dolu gelir.
 - `eventDate`, `from`, `to` `YYYY-MM-DD` olarak gönderilir; saat dikkate alınmaz.
 - `verificationQuestion`, `Found` ilanda zorunludur.
 - Sahibi ilanı düzenleyince ilan yeniden `Pending` olur; görevlinin düzenlemesi durumu değiştirmez.
+- Fotoğraf kuralları web formuyla aynı (`PhotoService`): ilan başına toplam en fazla 5, her biri en fazla 5 MB, yalnızca JPG/PNG; dosya içeriği de kontrol edilir. Hatalar `errors.files` altında döner. Sahibi yayındaki ilana fotoğraf eklerse ilan yeniden `Pending` olur.
 - Hata kodları: 400 doğrulama (`errors`) · 401 oturum yok ya da giriş hatalı · 403 yetki yok · 404 ilan yok ya da görme yetkisi yok · 409 `Resolved`/`Archived` ilan değiştirilemez.
 
 ## SignalR hub (`/hubs/chat`)
