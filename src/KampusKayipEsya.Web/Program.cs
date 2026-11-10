@@ -95,6 +95,9 @@ var app = builder.Build();
 if (!EF.IsDesignTime)
     await IdentitySeeder.SeedRolesAndAdminAsync(app.Services);
 
+if (!EF.IsDesignTime && app.Configuration.GetValue<bool>("DemoData:Seed"))
+    await DemoDataSeeder.SeedAsync(app.Services);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
