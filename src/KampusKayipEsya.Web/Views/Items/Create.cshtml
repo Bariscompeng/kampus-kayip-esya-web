@@ -1,4 +1,3 @@
-@using KampusKayipEsya.Web.Models.Enums
 @model KampusKayipEsya.Web.ViewModels.ItemCreateViewModel
 @{
     ViewData["Title"] = "İlan Aç";
@@ -11,65 +10,11 @@
 
         <form asp-action="Create" method="post" enctype="multipart/form-data" class="card shadow-sm">
             <div class="card-body p-4">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
-
-                <div class="mb-4">
-                    <label class="form-label d-block">@Html.DisplayNameFor(m => m.Type)</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Lost" id="turKayip" />
-                        <label class="btn btn-outline-danger" for="turKayip"><i class="bi bi-question-circle me-1"></i>Kaybettim</label>
-                        <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Found" id="turBulundu" />
-                        <label class="btn btn-outline-success" for="turBulundu"><i class="bi bi-check2-circle me-1"></i>Buldum</label>
-                    </div>
-                    <span asp-validation-for="Type" class="text-danger small"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label"></label>
-                    <input asp-for="Title" class="form-control" maxlength="100" placeholder="ör. Siyah deri cüzdan" />
-                    <span asp-validation-for="Title" class="text-danger small"></span>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-6">
-                        <label asp-for="CategoryId" class="form-label"></label>
-                        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
-                            <option value="">Seçin…</option>
-                        </select>
-                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label asp-for="LocationId" class="form-label"></label>
-                        <select asp-for="LocationId" asp-items="Model.Locations" class="form-select">
-                            <option value="">Seçin…</option>
-                        </select>
-                        <span asp-validation-for="LocationId" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="EventDate" class="form-label"></label>
-                    <input asp-for="EventDate" class="form-control" style="max-width: 14rem" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                    <span asp-validation-for="EventDate" class="text-danger small"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="4" maxlength="2000"
-                              placeholder="Rengi, markası, ayırt edici özellikleri, nerede ve ne zaman…"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                </div>
-
-                <div class="mb-3 border rounded-3 p-3 bg-light" id="dogrulamaAlani">
-                    <label asp-for="VerificationQuestion" class="form-label"></label>
-                    <input asp-for="VerificationQuestion" class="form-control" maxlength="300" placeholder="ör. Cüzdanın içinde hangi banka kartı var?" />
-                    <div class="form-text">Cevabını yalnızca eşyanın gerçek sahibinin bilebileceği bir soru yazın; cevabı ilana yazmayın.</div>
-                    <span asp-validation-for="VerificationQuestion" class="text-danger small"></span>
-                </div>
+                <partial name="_ItemFields" model="Model" />
 
                 <div class="mb-4">
                     <label asp-for="Photos" class="form-label"></label>
-                    <input asp-for="Photos" type="file" class="form-control" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                    <input asp-for="Photos" type="file" class="form-control" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" data-sinir="5" />
                     <div class="form-text">İsteğe bağlı. En fazla 5 fotoğraf, her biri en fazla 5 MB (JPG/PNG). İlk fotoğraf kapak olur.</div>
                     <span asp-validation-for="Photos" class="text-danger small"></span>
                     <div id="fotoOnizleme" class="d-flex flex-wrap gap-2 mt-2"></div>
@@ -82,38 +27,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        (() => {
-            const alan = document.getElementById("dogrulamaAlani");
-            const turlar = document.querySelectorAll("input[name='Type']");
-            const guncelle = () => {
-                const bulundu = document.getElementById("turBulundu").checked;
-                alan.classList.toggle("d-none", !bulundu);
-            };
-            turlar.forEach(t => t.addEventListener("change", guncelle));
-            guncelle();
-
-            const secici = document.getElementById("Photos");
-            const onizleme = document.getElementById("fotoOnizleme");
-            secici.addEventListener("change", () => {
-                onizleme.innerHTML = "";
-                [...secici.files].forEach((dosya, sira) => {
-                    const resim = document.createElement("img");
-                    resim.src = URL.createObjectURL(dosya);
-                    resim.alt = dosya.name;
-                    resim.className = "rounded border object-fit-cover" + (sira === 0 ? " border-primary border-2" : "");
-                    resim.width = 96;
-                    resim.height = 96;
-                    onizleme.appendChild(resim);
-                });
-                if (secici.files.length > 5) {
-                    const uyari = document.createElement("div");
-                    uyari.className = "text-danger small w-100";
-                    uyari.textContent = "En fazla 5 fotoğraf seçebilirsiniz.";
-                    onizleme.appendChild(uyari);
-                }
-            });
-        })();
-    </script>
+    <partial name="_ItemFormScripts" />
 }

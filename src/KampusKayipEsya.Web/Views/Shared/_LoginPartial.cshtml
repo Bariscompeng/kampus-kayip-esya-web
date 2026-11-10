@@ -6,9 +6,9 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <span class="nav-link">
-            <i class="bi bi-person-circle me-1"></i>@User.Identity?.Name
-        </span>
+        <a class="nav-link" asp-area="" asp-controller="Items" asp-action="Mine" title="@User.Identity?.Name">
+            <i class="bi bi-person-circle me-1"></i>Profilim
+        </a>
     </li>
     <li class="nav-item">
         <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout" method="post">

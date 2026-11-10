@@ -1,0 +1,58 @@
+@using KampusKayipEsya.Web.Models.Enums
+@model KampusKayipEsya.Web.ViewModels.ItemCreateViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+<div class="mb-4">
+    <label class="form-label d-block">@Html.DisplayNameFor(m => m.Type)</label>
+    <div class="btn-group w-100" role="group">
+        <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Lost" id="turKayip" />
+        <label class="btn btn-outline-danger" for="turKayip"><i class="bi bi-question-circle me-1"></i>Kaybettim</label>
+        <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Found" id="turBulundu" />
+        <label class="btn btn-outline-success" for="turBulundu"><i class="bi bi-check2-circle me-1"></i>Buldum</label>
+    </div>
+    <span asp-validation-for="Type" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" maxlength="100" placeholder="ör. Siyah deri cüzdan" />
+    <span asp-validation-for="Title" class="text-danger small"></span>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-6">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+            <option value="">Seçin…</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-md-6">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" asp-items="Model.Locations" class="form-select">
+            <option value="">Seçin…</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger small"></span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="EventDate" class="form-label"></label>
+    <input asp-for="EventDate" class="form-control" style="max-width: 14rem" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+    <span asp-validation-for="EventDate" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="4" maxlength="2000"
+              placeholder="Rengi, markası, ayırt edici özellikleri, nerede ve ne zaman…"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>
+
+<div class="mb-3 border rounded-3 p-3 bg-light" id="dogrulamaAlani">
+    <label asp-for="VerificationQuestion" class="form-label"></label>
+    <input asp-for="VerificationQuestion" class="form-control" maxlength="300" placeholder="ör. Cüzdanın içinde hangi banka kartı var?" />
+    <div class="form-text">Cevabını yalnızca eşyanın gerçek sahibinin bilebileceği bir soru yazın; cevabı ilana yazmayın.</div>
+    <span asp-validation-for="VerificationQuestion" class="text-danger small"></span>
+</div>
