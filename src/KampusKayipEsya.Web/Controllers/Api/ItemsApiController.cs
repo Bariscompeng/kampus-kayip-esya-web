@@ -19,6 +19,35 @@ public class ItemsApiController(IItemService itemService) : ApiControllerBase
         return new PagedResponse<ItemListDto>(items, result.Page, result.PageSize, result.TotalCount);
     }
 
+    [HttpGet("mine")]
+    public async Task<ActionResult<PagedResponse<ItemListDto>>> Mine([FromQuery] OwnedItemsRequest request, CancellationToken cancellationToken)
+    {
+        var sahibi = ItemViewer.From(User).UserId!;
+        var result = await itemService.GetOwnedAsync(sahibi, request.Status, request.Page, request.PageSize, cancellationToken);
+        var items = result.Items.Select(i => i.ToListDto(PhotoUrl)).ToList();
+        return new PagedResponse<ItemListDto>(items, result.Page, result.PageSize, result.TotalCount);
+    }
+
+    [HttpPost("{id:int}/photos")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(30_000_000)]
+    public async Task<ActionResult<ItemDetailDto>> UploadPhotos(int id, [FromForm] List<IFormFile> files, CancellationToken cancellationToken)
+    {
+        var viewer = ItemViewer.From(User);
+        var sonuc = await itemService.AddPhotosAsync(id, files, viewer, cancellationToken);
+        if (sonuc.Result != ItemChangeResult.Success) return ToErrorResult(sonuc.Result);
+
+        if (sonuc.Errors.Count > 0)
+        {
+            foreach (var hata in sonuc.Errors)
+                ModelState.AddModelError("files", hata);
+            return ValidationProblem(ModelState);
+        }
+
+        var item = await itemService.GetVisibleAsync(id, viewer, cancellationToken);
+        return item!.ToDetailDto(viewer, PhotoUrl);
+    }
+
     [HttpGet("{id:int}")]
     [AllowAnonymous]
     public async Task<ActionResult<ItemDetailDto>> Get(int id, CancellationToken cancellationToken)
