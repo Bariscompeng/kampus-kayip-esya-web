@@ -76,3 +76,15 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | `Resolved`/`Archived` ilan düzenlenemez (409); sahibi silemez, görevli silebilir | Teslim geçmişi korunur; görevli gerektiğinde müdahale edebilir | ☐ Şeyma ☐ Barış |
 | İlan silinince satır silinir, fotoğraf klasörü de diskten kaldırılır. 5. haftada talepler eklenince talebi olan ilanın silinmesi yeniden ele alınacak | Sahipsiz dosya kalmaz | ☐ Şeyma ☐ Barış |
 | Swagger yalnızca `Development` ortamında açık (`/swagger`) ve yalnızca `/api` uçlarını listeler | Üretimde API yüzeyi ilan edilmez; MVC sayfaları dokümana karışmaz | ☐ Şeyma ☐ Barış |
+
+## Teknik kararlar (4. hafta)
+
+| Karar | Gerekçe | Onay |
+|---|---|---|
+| Profilim `/profilim`: Onay bekleyen / Yayında / Kapanmış (Resolved, Archived, Rejected) sekmeleri | Kullanıcı ilanının nerede olduğunu tek bakışta görür; reddedilen ilan düzenlenip yeniden onaya gönderilebilir | ☐ Şeyma ☐ Barış |
+| "Teslim edildi" yalnızca `Published` ilanda; kapanan ilan düzenlenemez, sahibi silemez (`IItemService.MarkResolvedAsync`) | Onaylanmamış ilan kapatılamaz; teslim geçmişi korunur (3. hafta silme kuralıyla aynı) | ☐ Şeyma ☐ Barış |
+| Sahibi yayındaki ilana fotoğraf eklerse ilan yeniden `Pending` olur | Düzenlemedeki kuralla aynı: onaylı ilana denetlenmemiş içerik girmez | ☐ Şeyma ☐ Barış |
+| Düzenlemede fotoğraf silinince kalan fotoğrafların sırası 0'dan yeniden numaralanır | Kapak her zaman ilk fotoğraf; sırada boşluk kalmaz | ☐ Şeyma ☐ Barış |
+| `GET /api/items/mine` liste yanıtı biçiminde, isteğe bağlı `status` filtresiyle; `POST /api/items/{id}/photos` yalnızca sahibine açık | iOS "İlanlarım" ekranı web ile aynı veriyi görür; fotoğraf kuralları tek yerde (`PhotoService`) | ☐ Şeyma ☐ Barış |
+| Demo verisi yalnızca `--DemoData:Seed=true` ile yüklenir; şifre user-secrets'ta, fotoğraflar yerel klasörden `PhotoService` üzerinden | Normal açılışta veri değişmez; şifre ve fotoğraflar depoya girmez; dosya kuralları atlanmaz | ☐ Şeyma ☐ Barış |
+| Ana sayfadaki "Son bulunan / Son kayıp" şeritleri yayındaki gerçek ilanlardan (`IItemService.SearchAsync`, 4'er ilan) | 1. haftadaki örnek kartların yerine geçti; liste kuralı (yalnızca yayındakiler) tek yerde | ☐ Şeyma ☐ Barış |

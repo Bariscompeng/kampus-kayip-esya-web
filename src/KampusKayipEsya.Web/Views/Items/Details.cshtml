@@ -8,13 +8,7 @@
     var turRengi = ilan.Type == ItemType.Found ? "success" : "danger";
 }
 
-@if (TempData["Basari"] is string basari)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-1"></i>@basari
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
-    </div>
-}
+<partial name="_IslemMesajlari" />
 
 @if (ilan.Status != ItemStatus.Published)
 {
@@ -104,9 +98,15 @@
         <div class="d-grid gap-2">
             @if (Model.IsOwner)
             {
-                <button class="btn btn-outline-primary" disabled title="4. haftada">
-                    <i class="bi bi-pencil me-1"></i>Düzenle
-                </button>
+                @if (ilan.Status is not (ItemStatus.Resolved or ItemStatus.Archived))
+                {
+                    <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@ilan.Id">
+                        <i class="bi bi-pencil me-1"></i>Düzenle
+                    </a>
+                }
+                <a class="btn btn-outline-secondary" asp-action="Mine" asp-route-sekme="@KampusKayipEsya.Web.ViewModels.MyItemsViewModel.SekmeOf(ilan.Status)">
+                    <i class="bi bi-person-lines-fill me-1"></i>İlanlarım
+                </a>
             }
             else
             {

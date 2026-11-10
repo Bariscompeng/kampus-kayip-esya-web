@@ -1,0 +1,14 @@
+@if (TempData["Basari"] is string basari)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@basari
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+@if (TempData["Hata"] is string hata)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>@hata
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}

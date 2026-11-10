@@ -1,5 +1,6 @@
 using KampusKayipEsya.Web.Dtos;
 using KampusKayipEsya.Web.Models;
+using KampusKayipEsya.Web.Models.Enums;
 
 namespace KampusKayipEsya.Web.Services;
 
@@ -27,4 +28,12 @@ public interface IItemService
     Task<ItemChangeResult> UpdateAsync(int id, ItemInput input, ItemViewer viewer, CancellationToken cancellationToken = default);
 
     Task<ItemChangeResult> DeleteAsync(int id, ItemViewer viewer, CancellationToken cancellationToken = default);
+
+    Task<PagedResponse<Item>> GetOwnedAsync(string ownerId, ItemStatus? status, int page, int pageSize, CancellationToken cancellationToken = default);
+
+    Task<ItemChangeResult> MarkResolvedAsync(int id, ItemViewer viewer, CancellationToken cancellationToken = default);
+
+    Task<PhotoChangeResult> AddPhotosAsync(int id, IReadOnlyCollection<IFormFile> photos, ItemViewer viewer, CancellationToken cancellationToken = default);
 }
+
+public record PhotoChangeResult(ItemChangeResult Result, IReadOnlyList<string> Errors);

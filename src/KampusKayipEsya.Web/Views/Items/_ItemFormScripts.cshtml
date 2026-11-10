@@ -1,0 +1,35 @@
+<partial name="_ValidationScriptsPartial" />
+<script>
+    (() => {
+        const alan = document.getElementById("dogrulamaAlani");
+        const turlar = document.querySelectorAll("input[name='Type']");
+        const guncelle = () => {
+            const bulundu = document.getElementById("turBulundu").checked;
+            alan.classList.toggle("d-none", !bulundu);
+        };
+        turlar.forEach(t => t.addEventListener("change", guncelle));
+        guncelle();
+
+        const secici = document.getElementById("Photos");
+        const onizleme = document.getElementById("fotoOnizleme");
+        const sinir = Number(secici.dataset.sinir ?? 5);
+        secici.addEventListener("change", () => {
+            onizleme.innerHTML = "";
+            [...secici.files].forEach((dosya, sira) => {
+                const resim = document.createElement("img");
+                resim.src = URL.createObjectURL(dosya);
+                resim.alt = dosya.name;
+                resim.className = "rounded border object-fit-cover" + (sira === 0 ? " border-primary border-2" : "");
+                resim.width = 96;
+                resim.height = 96;
+                onizleme.appendChild(resim);
+            });
+            if (secici.files.length > sinir) {
+                const uyari = document.createElement("div");
+                uyari.className = "text-danger small w-100";
+                uyari.textContent = `En fazla ${sinir} fotoğraf seçebilirsiniz.`;
+                onizleme.appendChild(uyari);
+            }
+        });
+    })();
+</script>

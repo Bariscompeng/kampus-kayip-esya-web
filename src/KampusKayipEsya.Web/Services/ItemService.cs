@@ -87,12 +87,7 @@ public class ItemService(AppDbContext context, IPhotoService photoService) : IIt
         Apply(item, input);
 
         // Sahibinin değişikliği yeniden onaya düşer; yoksa onaylı ilana onaysız içerik yazılabilirdi.
-        if (!viewer.IsStaff)
-        {
-            item.Status = ItemStatus.Pending;
-            item.ApprovedById = null;
-            item.ApprovedAt = null;
-        }
+        if (!viewer.IsStaff) BackToPending(item);
 
         await context.SaveChangesAsync(cancellationToken);
         return ItemChangeResult.Success;
@@ -113,6 +108,65 @@ public class ItemService(AppDbContext context, IPhotoService photoService) : IIt
         photoService.DeleteAll(id);
 
         return ItemChangeResult.Success;
+    }
+
+    public async Task<PagedResponse<Item>> GetOwnedAsync(string ownerId, ItemStatus? status, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = context.Items.AsNoTracking().Where(i => i.OwnerId == ownerId);
+        if (status is ItemStatus durum) query = query.Where(i => i.Status == durum);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Include(i => i.Category)
+            .Include(i => i.Location)
+            .Include(i => i.Photos)
+            .OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+
+        return new PagedResponse<Item>(items, page, pageSize, totalCount);
+    }
+
+    public async Task<ItemChangeResult> MarkResolvedAsync(int id, ItemViewer viewer, CancellationToken cancellationToken = default)
+    {
+        var item = await context.Items.FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+        if (item is null || !CanSee(item, viewer)) return ItemChangeResult.NotFound;
+        if (!viewer.Owns(item) && !viewer.IsStaff) return ItemChangeResult.Forbidden;
+        if (item.Status != ItemStatus.Published) return ItemChangeResult.Conflict;
+
+        item.Status = ItemStatus.Resolved;
+        await context.SaveChangesAsync(cancellationToken);
+        return ItemChangeResult.Success;
+    }
+
+    public async Task<PhotoChangeResult> AddPhotosAsync(int id, IReadOnlyCollection<IFormFile> photos, ItemViewer viewer, CancellationToken cancellationToken = default)
+    {
+        var item = await context.Items.Include(i => i.Photos).FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+        if (item is null || !CanSee(item, viewer)) return new(ItemChangeResult.NotFound, []);
+        if (!viewer.Owns(item)) return new(ItemChangeResult.Forbidden, []);
+        if (item.Status is ItemStatus.Resolved or ItemStatus.Archived) return new(ItemChangeResult.Conflict, []);
+
+        IReadOnlyList<string> errors = photos.Count == 0
+            ? ["En az bir fotoğraf seçin."]
+            : photoService.Validate(photos, item.Photos.Count);
+        if (errors.Count > 0) return new(ItemChangeResult.Success, errors);
+
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        if (item.Status == ItemStatus.Published) BackToPending(item);
+        await context.SaveChangesAsync(cancellationToken);
+        await photoService.SaveAsync(item.Id, photos, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return new(ItemChangeResult.Success, []);
+    }
+
+    private static void BackToPending(Item item)
+    {
+        item.Status = ItemStatus.Pending;
+        item.ApprovedById = null;
+        item.ApprovedAt = null;
     }
 
     private static bool CanSee(Item item, ItemViewer viewer) =>

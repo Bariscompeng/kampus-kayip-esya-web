@@ -114,6 +114,27 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - Fotoğraflar `wwwroot/uploads/items/{ilanId}/` altına Guid adıyla kaydedilir; bu klasör depoya girmez.
 - Detay sayfası: `/items/{id}`. Onay bekleyen ilanı yalnızca sahibi, görevli ve admin görebilir.
 
+**Profilim (ilanlarım)**
+
+- Menüden **Profilim** (`/profilim`): kullanıcının ilanları **Onay bekleyen**, **Yayında** ve **Kapanmış** (teslim edilen, arşivlenen, reddedilen) sekmelerinde.
+- **Düzenle**: form alanları değiştirilebilir, mevcut fotoğraflar silinebilir, yeni fotoğraf eklenebilir (toplam en fazla 5). Yayındaki ya da reddedilmiş ilan kaydedilince yeniden görevli onayına gider.
+- **Teslim edildi**: yalnızca yayındaki ilan kapatılabilir; kapanan ilan düzenlenemez ve sahibi tarafından silinemez.
+- **Sil**: onay penceresinden sonra ilan, fotoğraf satırları ve fotoğraf klasörü silinir.
+
+**Demo verisi (gösterim için)**
+
+Gösterimden önce 4 demo öğrenci hesabı ve 18 ilan (13 yayında, 3 onay bekleyen, 1 teslim edilmiş, 1 reddedilmiş) yüklenebilir. Normal açılışta yüklenmez; tekrar çalıştırılırsa ikinci kez eklemez.
+
+```powershell
+cd src/KampusKayipEsya.Web
+dotnet user-secrets set "DemoData:Password" "<DEMO_SIFRESI>"
+dotnet user-secrets set "DemoData:PhotoFolder" "C:\yol\demo-fotograflari"
+dotnet run --launch-profile http -- --DemoData:Seed=true
+```
+
+- Demo hesapları: `ayse.yilmaz@`, `mehmet.kaya@`, `zeynep.demir@`, `can.ozturk@ogrenci.ankara.edu.tr`; şifre user-secrets'taki `DemoData:Password`.
+- `DemoData:PhotoFolder` isteğe bağlı: klasördeki JPG/PNG dosyaları ilanlara sırayla birer fotoğraf olarak eklenir; geçersiz dosyalar atlanır.
+
 **Web API**
 
 - Swagger: http://localhost:5227/swagger (yalnızca `Development`). `POST /api/auth/login` yanıtındaki token'ı **Authorize** düğmesine girin.

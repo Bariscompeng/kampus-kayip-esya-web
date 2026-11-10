@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using KampusKayipEsya.Web.Models;
 using KampusKayipEsya.Web.Models.Enums;
 using KampusKayipEsya.Web.ViewModels.Validation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace KampusKayipEsya.Web.ViewModels;
@@ -48,4 +49,38 @@ public class ItemCreateViewModel
     public IEnumerable<SelectListItem> Locations { get; set; } = [];
 }
 
+public class ItemEditViewModel : ItemCreateViewModel
+{
+    public int Id { get; set; }
+    public ItemStatus Status { get; set; }
+    public List<int> RemovePhotoIds { get; set; } = [];
+    [ValidateNever]
+    public IReadOnlyList<ItemPhoto> ExistingPhotos { get; set; } = [];
+
+    public bool OnayaDuser => Status is ItemStatus.Published or ItemStatus.Rejected;
+}
+
 public record ItemDetailsViewModel(Item Item, bool IsOwner, bool CanSeeQuestion, string OwnerShortName);
+
+public class MyItemsViewModel(IReadOnlyList<Item> items, string? sekme)
+{
+    public const string Bekleyen = "bekleyen";
+    public const string Yayinda = "yayinda";
+    public const string Kapanmis = "kapanmis";
+
+    public IReadOnlyList<Item> Bekleyenler { get; } = items.Where(i => i.Status == ItemStatus.Pending).ToList();
+    public IReadOnlyList<Item> Yayindakiler { get; } = items.Where(i => i.Status == ItemStatus.Published).ToList();
+    public IReadOnlyList<Item> Kapananlar { get; } = items
+        .Where(i => i.Status is ItemStatus.Resolved or ItemStatus.Archived or ItemStatus.Rejected).ToList();
+
+    public string AktifSekme { get; } = sekme is Bekleyen or Yayinda or Kapanmis
+        ? sekme
+        : items.Any(i => i.Status == ItemStatus.Pending) ? Bekleyen : Yayinda;
+
+    public static string SekmeOf(ItemStatus status) => status switch
+    {
+        ItemStatus.Pending => Bekleyen,
+        ItemStatus.Published => Yayinda,
+        _ => Kapanmis
+    };
+}

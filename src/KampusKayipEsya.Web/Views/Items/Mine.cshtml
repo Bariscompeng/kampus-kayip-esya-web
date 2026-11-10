@@ -1,0 +1,152 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models.Enums
+@using KampusKayipEsya.Web.ViewModels
+@model MyItemsViewModel
+@{
+    ViewData["Title"] = "Profilim";
+    var sekmeler = new[]
+    {
+        (Anahtar: MyItemsViewModel.Bekleyen, Baslik: "Onay bekleyen", Simge: "bi-hourglass-split", Ilanlar: Model.Bekleyenler,
+            Bos: "Onay bekleyen ilanınız yok."),
+        (Anahtar: MyItemsViewModel.Yayinda, Baslik: "Yayında", Simge: "bi-broadcast", Ilanlar: Model.Yayindakiler,
+            Bos: "Yayında ilanınız yok. İlanlar görevli onayından sonra burada görünür."),
+        (Anahtar: MyItemsViewModel.Kapanmis, Baslik: "Kapanmış", Simge: "bi-archive", Ilanlar: Model.Kapananlar,
+            Bos: "Kapanmış ilanınız yok. Teslim edilen, arşivlenen ve reddedilen ilanlar burada görünür.")
+    };
+    var tr = new CultureInfo("tr-TR");
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-0"><i class="bi bi-person-circle me-2"></i>Profilim</h1>
+        <div class="text-muted small">@User.Identity?.Name · İlanlarım</div>
+    </div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>Yeni ilan</a>
+</div>
+
+<partial name="_IslemMesajlari" />
+
+<ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist">
+    @foreach (var sekme in sekmeler)
+    {
+        var aktif = sekme.Anahtar == Model.AktifSekme;
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-nowrap px-2 px-sm-3 @(aktif ? "active" : "")" id="sekme-@sekme.Anahtar" data-bs-toggle="pill"
+                    data-bs-target="#panel-@sekme.Anahtar" type="button" role="tab" aria-selected="@(aktif ? "true" : "false")">
+                <i class="bi @sekme.Simge me-1 d-none d-sm-inline"></i>@sekme.Baslik
+                <span class="badge rounded-pill @(aktif ? "text-bg-light" : "text-bg-secondary") ms-1">@sekme.Ilanlar.Count</span>
+            </button>
+        </li>
+    }
+</ul>
+
+<div class="tab-content">
+    @foreach (var sekme in sekmeler)
+    {
+        <div class="tab-pane fade @(sekme.Anahtar == Model.AktifSekme ? "show active" : "")" id="panel-@sekme.Anahtar" role="tabpanel">
+            @if (sekme.Ilanlar.Count == 0)
+            {
+                <div class="text-center text-muted border rounded-3 py-5">
+                    <i class="bi @sekme.Simge fs-1 d-block mb-2"></i>@sekme.Bos
+                </div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var ilan in sekme.Ilanlar)
+                    {
+                        var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
+                        var degisebilir = ilan.Status is not (ItemStatus.Resolved or ItemStatus.Archived);
+                        <div class="list-group-item py-3">
+                            <div class="d-flex gap-3">
+                                <a href="/items/@ilan.Id" class="flex-shrink-0">
+                                    @if (kapak is not null)
+                                    {
+                                        <img src="@Url.Content("~/" + kapak.Path)" alt="@ilan.Title" width="88" height="88" class="rounded border object-fit-cover" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded border bg-light d-flex align-items-center justify-content-center text-secondary" style="width: 88px; height: 88px">
+                                            <i class="bi @(ilan.Category.Icon ?? "bi-image") fs-2"></i>
+                                        </div>
+                                    }
+                                </a>
+                                <div class="flex-grow-1" style="min-width: 0">
+                                    <div class="d-flex flex-wrap gap-1 mb-1">
+                                        <span class="badge text-bg-@(ilan.Type == ItemType.Found ? "success" : "danger")">@ilan.Type.ToTurkish()</span>
+                                        <span class="badge @ilan.Status.BadgeClass()">@ilan.Status.ToTurkish()</span>
+                                        @if (ilan.Photos.Count > 0)
+                                        {
+                                            <span class="badge text-bg-light border"><i class="bi bi-images me-1"></i>@ilan.Photos.Count</span>
+                                        }
+                                    </div>
+                                    <a href="/items/@ilan.Id" class="fw-semibold text-decoration-none d-block text-truncate">@ilan.Title</a>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt"></i> @ilan.Location.Building
+                                        · <i class="bi bi-calendar-event"></i> @ilan.EventDate.ToString("d MMM yyyy", tr)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 mt-2 justify-content-end">
+                                <a class="btn btn-sm btn-outline-secondary" href="/items/@ilan.Id"><i class="bi bi-eye me-1"></i>Görüntüle</a>
+                                @if (degisebilir)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@ilan.Id"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+                                }
+                                @if (ilan.Status == ItemStatus.Published)
+                                {
+                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
+                                            data-baslik="Teslim edildi olarak kapat" data-buton="Evet, teslim edildi" data-renk="btn-success"
+                                            data-mesaj="&quot;@ilan.Title&quot; ilanı kapanacak ve aramalarda görünmeyecek. Bu işlem geri alınamaz."
+                                            data-adres="@Url.Action("Resolve", new { id = ilan.Id })">
+                                        <i class="bi bi-check2-circle me-1"></i>Teslim edildi
+                                    </button>
+                                }
+                                @if (degisebilir)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
+                                            data-baslik="İlanı sil" data-buton="Evet, sil" data-renk="btn-danger"
+                                            data-mesaj="&quot;@ilan.Title&quot; ilanı ve fotoğrafları kalıcı olarak silinecek."
+                                            data-adres="@Url.Action("Delete", new { id = ilan.Id, sekme = sekme.Anahtar })">
+                                        <i class="bi bi-trash me-1"></i>Sil
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="onayPenceresi" tabindex="-1" aria-labelledby="onayBaslik" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="post" id="onayFormu">
+            @Html.AntiForgeryToken()
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="onayBaslik"></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body" id="onayMesaj"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn" id="onayButon"></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("onayPenceresi").addEventListener("show.bs.modal", olay => {
+            const tetik = olay.relatedTarget;
+            document.getElementById("onayFormu").action = tetik.dataset.adres;
+            document.getElementById("onayBaslik").textContent = tetik.dataset.baslik;
+            document.getElementById("onayMesaj").textContent = tetik.dataset.mesaj;
+            const buton = document.getElementById("onayButon");
+            buton.textContent = tetik.dataset.buton;
+            buton.className = "btn " + tetik.dataset.renk;
+        });
+    </script>
+}

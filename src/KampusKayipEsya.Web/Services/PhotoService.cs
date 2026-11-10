@@ -87,6 +87,34 @@ public class PhotoService(AppDbContext context, IWebHostEnvironment environment)
         }
     }
 
+    public async Task<int> DeleteAsync(int itemId, IReadOnlyCollection<int> photoIds, CancellationToken cancellationToken = default)
+    {
+        if (photoIds.Count == 0) return 0;
+
+        var fotograflar = await context.ItemPhotos
+            .Where(p => p.ItemId == itemId)
+            .OrderBy(p => p.Order)
+            .ToListAsync(cancellationToken);
+
+        var silinecekler = fotograflar.Where(p => photoIds.Contains(p.Id)).ToList();
+        if (silinecekler.Count == 0) return 0;
+
+        context.ItemPhotos.RemoveRange(silinecekler);
+        var sira = 0;
+        foreach (var kalan in fotograflar.Except(silinecekler))
+            kalan.Order = sira++;
+        await context.SaveChangesAsync(cancellationToken);
+
+        foreach (var foto in silinecekler)
+        {
+            var tamYol = Path.Combine(environment.WebRootPath, foto.Path.Replace('/', Path.DirectorySeparatorChar));
+            if (File.Exists(tamYol))
+                File.Delete(tamYol);
+        }
+
+        return silinecekler.Count;
+    }
+
     public void DeleteAll(int itemId)
     {
         var tamKlasor = Path.Combine(environment.WebRootPath, "uploads", "items", itemId.ToString());
