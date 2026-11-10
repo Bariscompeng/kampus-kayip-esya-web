@@ -1,0 +1,33 @@
+@using KampusKayipEsya.Web.ViewModels
+@model (IReadOnlyList<Item> Ilanlar, string Renk, string Bos)
+
+@if (Model.Ilanlar.Count == 0)
+{
+    <div class="border rounded-3 text-center text-muted py-4 small">@Model.Bos</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var ilan in Model.Ilanlar)
+        {
+            var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
+            <a href="/items/@ilan.Id" class="list-group-item list-group-item-action d-flex align-items-center gap-3">
+                @if (kapak is not null)
+                {
+                    <img src="@Url.Content("~/" + kapak.Path)" alt="" width="48" height="48" class="rounded object-fit-cover flex-shrink-0" />
+                }
+                else
+                {
+                    <i class="bi @(ilan.Category.Icon ?? "bi-tag") fs-3 text-@Model.Renk flex-shrink-0" style="width: 48px; text-align: center"></i>
+                }
+                <div class="flex-grow-1" style="min-width: 0">
+                    <div class="fw-semibold text-truncate">@ilan.Title</div>
+                    <div class="small text-muted text-truncate">
+                        <i class="bi bi-geo-alt"></i> @ilan.Location.Building · @HomeIndexViewModel.GoreliZaman(ilan.EventDate)
+                    </div>
+                </div>
+                <span class="badge text-bg-light border flex-shrink-0">@ilan.Category.Name</span>
+            </a>
+        }
+    </div>
+}
