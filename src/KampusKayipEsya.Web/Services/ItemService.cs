@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KampusKayipEsya.Web.Services;
 
-public class ItemService(AppDbContext context, IPhotoService photoService) : IItemService
+public class ItemService(AppDbContext context, IPhotoService photoService, INotificationService notificationService) : IItemService
 {
     public async Task<PagedResponse<Item>> SearchAsync(ItemSearchRequest request, CancellationToken cancellationToken = default)
     {
@@ -162,11 +162,68 @@ public class ItemService(AppDbContext context, IPhotoService photoService) : IIt
         return new(ItemChangeResult.Success, []);
     }
 
+    public async Task<PagedResponse<Item>> GetPendingAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = context.Items.AsNoTracking().Where(i => i.Status == ItemStatus.Pending);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Include(i => i.Category)
+            .Include(i => i.Location)
+            .Include(i => i.Owner)
+            .Include(i => i.Photos)
+            .OrderBy(i => i.CreatedAt).ThenBy(i => i.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+
+        return new PagedResponse<Item>(items, page, pageSize, totalCount);
+    }
+
+    public Task<int> CountPendingAsync(CancellationToken cancellationToken = default) =>
+        context.Items.CountAsync(i => i.Status == ItemStatus.Pending, cancellationToken);
+
+    public async Task<ItemChangeResult> ApproveAsync(int id, string staffId, CancellationToken cancellationToken = default)
+    {
+        var item = await context.Items.FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+        if (item is null) return ItemChangeResult.NotFound;
+        if (item.Status != ItemStatus.Pending) return ItemChangeResult.Conflict;
+
+        item.Status = ItemStatus.Published;
+        item.ApprovedById = staffId;
+        item.ApprovedAt = DateTime.UtcNow;
+        item.RejectionReason = null;
+        await context.SaveChangesAsync(cancellationToken);
+
+        await notificationService.CreateAsync(item.OwnerId, NotificationType.ItemApproved,
+            $"\"{item.Title}\" ilanınız onaylandı ve yayına alındı.", $"/items/{item.Id}", cancellationToken);
+        return ItemChangeResult.Success;
+    }
+
+    public async Task<ItemChangeResult> RejectAsync(int id, string staffId, string reason, CancellationToken cancellationToken = default)
+    {
+        var item = await context.Items.FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+        if (item is null) return ItemChangeResult.NotFound;
+        if (item.Status != ItemStatus.Pending) return ItemChangeResult.Conflict;
+
+        item.Status = ItemStatus.Rejected;
+        item.ApprovedById = null;
+        item.ApprovedAt = null;
+        item.RejectionReason = reason.Trim();
+        await context.SaveChangesAsync(cancellationToken);
+
+        await notificationService.CreateAsync(item.OwnerId, NotificationType.ItemRejected,
+            $"\"{item.Title}\" ilanınız reddedildi: {item.RejectionReason}", $"/items/{item.Id}", cancellationToken);
+        return ItemChangeResult.Success;
+    }
+
     private static void BackToPending(Item item)
     {
         item.Status = ItemStatus.Pending;
         item.ApprovedById = null;
         item.ApprovedAt = null;
+        item.RejectionReason = null;
     }
 
     private static bool CanSee(Item item, ItemViewer viewer) =>

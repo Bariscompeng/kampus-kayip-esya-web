@@ -4,5 +4,5 @@ namespace KampusKayipEsya.Web.Areas.Gorevli.Controllers;
 
 public class HomeController : GorevliControllerBase
 {
-    public IActionResult Index() => View();
+    public IActionResult Index() => RedirectToAction("Index", "Approvals");
 }

@@ -4,10 +4,10 @@
 
     var kutular = new[]
     {
-        (Baslik: "Kategori", Sayi: Model.CategoryCount, Simge: "bi-tags", Renk: "bg-primary", Controller: "Categories"),
-        (Baslik: "Konum", Sayi: Model.LocationCount, Simge: "bi-geo-alt", Renk: "bg-success", Controller: "Locations"),
-        (Baslik: "Onay bekleyen ilan", Sayi: Model.PendingItemCount, Simge: "bi-hourglass-split", Renk: "bg-warning", Controller: ""),
-        (Baslik: "Kullanıcı", Sayi: Model.UserCount, Simge: "bi-people", Renk: "bg-danger", Controller: "")
+        (Baslik: "Kategori", Sayi: Model.CategoryCount, Simge: "bi-tags", Renk: "bg-primary", Area: "Admin", Controller: "Categories"),
+        (Baslik: "Konum", Sayi: Model.LocationCount, Simge: "bi-geo-alt", Renk: "bg-success", Area: "Admin", Controller: "Locations"),
+        (Baslik: "Onay bekleyen ilan", Sayi: Model.PendingItemCount, Simge: "bi-hourglass-split", Renk: "bg-warning", Area: "Gorevli", Controller: "Approvals"),
+        (Baslik: "Kullanıcı", Sayi: Model.UserCount, Simge: "bi-people", Renk: "bg-danger", Area: "Admin", Controller: "")
     };
 }
 
@@ -31,7 +31,7 @@
                 @if (kutu.Controller != "")
                 {
                     <a class="card-footer d-flex justify-content-between small text-white stretched-link text-decoration-none"
-                       asp-controller="@kutu.Controller" asp-action="Index">
+                       asp-area="@kutu.Area" asp-controller="@kutu.Controller" asp-action="Index">
                         Yönet <i class="bi bi-chevron-right"></i>
                     </a>
                 }

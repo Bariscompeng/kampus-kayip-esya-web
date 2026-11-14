@@ -16,8 +16,8 @@
     }
 
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <a class="navbar-brand ps-3" asp-area="Admin" asp-controller="Home" asp-action="Index">
-            <i class="bi bi-search-heart me-1"></i>Yönetim Paneli
+        <a class="navbar-brand ps-3" asp-area="@(User.IsInRole(Roles.Admin) ? "Admin" : "Gorevli")" asp-controller="Home" asp-action="Index">
+            <i class="bi bi-search-heart me-1"></i>@(User.IsInRole(Roles.Admin) ? "Yönetim Paneli" : "Görevli Paneli")
         </a>
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 text-white" id="sidebarToggle" type="button" aria-label="Yan menüyü aç/kapat">
             <i class="bi bi-list fs-5"></i>
@@ -65,9 +65,10 @@
                         @if (User.IsInRole(Roles.Gorevli) || User.IsInRole(Roles.Admin))
                         {
                             <div class="sb-sidenav-menu-heading">Kayıp Eşya Bürosu</div>
-                            <a class="nav-link @Aktif("Gorevli", "Home")" asp-area="Gorevli" asp-controller="Home" asp-action="Index">
+                            <a class="nav-link @Aktif("Gorevli", "Approvals")" asp-area="Gorevli" asp-controller="Approvals" asp-action="Index">
                                 <div class="sb-nav-link-icon"><i class="bi bi-clipboard-check"></i></div>
-                                Görevli Paneli
+                                Onay Kuyruğu
+                                @await Component.InvokeAsync("PendingItemCount")
                             </a>
                         }
                     </div>

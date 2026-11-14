@@ -15,6 +15,29 @@ namespace KampusKayipEsya.Web.Controllers;
 [Authorize]
 public class ItemsController(AppDbContext context, IItemService itemService, IPhotoService photoService, UserManager<AppUser> userManager) : Controller
 {
+    private const int ListeSayfaBoyutu = 12;
+
+    // Web liste sayfası; API'deki GET /api/items ile aynı servis metodu (yalnızca yayındaki ilanlar).
+    [AllowAnonymous]
+    [HttpGet("/items")]
+    public async Task<IActionResult> Index(ItemSearchRequest filtre)
+    {
+        // Adres çubuğuna elle yazılmış hatalı değerler hata yerine varsayılana döner.
+        filtre.Page = Math.Max(1, filtre.Page);
+        filtre.PageSize = ListeSayfaBoyutu;
+        if (filtre.From > filtre.To) (filtre.From, filtre.To) = (filtre.To, filtre.From);
+
+        var sonuc = await itemService.SearchAsync(filtre);
+
+        // asp-for olmadan asp-items seçili değeri işaretlemez; filtre formu seçimi korusun.
+        var kategoriler = await KategoriListesi();
+        var konumlar = await KonumListesi();
+        kategoriler.ForEach(k => k.Selected = k.Value == filtre.CategoryId?.ToString());
+        konumlar.ForEach(k => k.Selected = k.Value == filtre.LocationId?.ToString());
+
+        return View(new ItemListViewModel(filtre, sonuc, kategoriler, konumlar));
+    }
+
     public async Task<IActionResult> Create()
     {
         var model = new ItemCreateViewModel { EventDate = DateTime.Today };
@@ -192,16 +215,21 @@ public class ItemsController(AppDbContext context, IItemService itemService, IPh
 
     private async Task ListeleriDoldur(ItemCreateViewModel model)
     {
-        model.Categories = await context.Categories
+        model.Categories = await KategoriListesi();
+        model.Locations = await KonumListesi();
+    }
+
+    private async Task<List<SelectListItem>> KategoriListesi() =>
+        await context.Categories
             .AsNoTracking()
             .OrderBy(c => c.Name)
             .Select(c => new SelectListItem(c.Name, c.Id.ToString()))
             .ToListAsync();
 
-        model.Locations = await context.Locations
+    private async Task<List<SelectListItem>> KonumListesi() =>
+        await context.Locations
             .AsNoTracking()
             .OrderBy(l => l.Building).ThenBy(l => l.FloorOrRoom)
             .Select(l => new SelectListItem(l.FloorOrRoom == null ? l.Building : l.Building + " – " + l.FloorOrRoom, l.Id.ToString()))
             .ToListAsync();
-    }
 }

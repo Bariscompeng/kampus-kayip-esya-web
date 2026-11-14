@@ -16,6 +16,8 @@ public class TokenService(JwtOptions options) : ITokenService
         {
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email!),
+            // "unique_name" sunucuda ClaimTypes.Name olur (User.Identity.Name); "name" eşlenmiyor.
+            new(JwtRegisteredClaimNames.UniqueName, user.FullName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         claims.AddRange(roles.Select(role => new Claim("role", role)));

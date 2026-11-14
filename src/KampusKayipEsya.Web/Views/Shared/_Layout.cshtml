@@ -30,7 +30,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link disabled" href="#" aria-disabled="true">
+                            <a class="nav-link" asp-area="" asp-controller="Items" asp-action="Index">
                                 <i class="bi bi-card-list me-1"></i>İlanlar
                             </a>
                         </li>
@@ -44,6 +44,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="Gorevli" asp-controller="Home" asp-action="Index">
                                     <i class="bi bi-clipboard-check me-1"></i>Görevli
+                                    @await Component.InvokeAsync("PendingItemCount")
                                 </a>
                             </li>
                         }

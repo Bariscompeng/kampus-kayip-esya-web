@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KampusKayipEsya.Web.Controllers.Api;
@@ -7,7 +8,9 @@ namespace KampusKayipEsya.Web.Controllers.Api;
 // Tüm API uçları yalnızca JWT kabul eder; site çerezi burada geçmez, bu yüzden CSRF riski de yoktur.
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[EnableCors(CorsPolicy)]
 [Produces("application/json")]
 public abstract class ApiControllerBase : ControllerBase
 {
+    public const string CorsPolicy = "Api";
 }
