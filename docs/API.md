@@ -43,7 +43,9 @@ Durum: ⏳ yazılmadı · 🚧 yapılıyor · ✅ `main`'de, Swagger'da denendi
 
 ## Kimlik doğrulama ve ilan uçları
 
-Token 24 saat geçerlidir (`Jwt:ExpiresMinutes`); yenileme ucu yok, süresi dolunca tekrar giriş yapılır. Kilitlenen kullanıcının eski token'ı da 401 alır.
+Token 24 saat geçerlidir (`Jwt:ExpiresMinutes`); yenileme ucu yok, süresi dolunca tekrar giriş yapılır. Kilitlenen kullanıcının eski token'ı da 401 alır. Token claim'leri: `sub` (kullanıcı Id), `email`, `unique_name` (ad soyad), `role`.
+
+**Bağlantı:** iPhone aynı ağdaki bilgisayara `dotnet run --launch-profile ag` ile açılan `http://<bilgisayarın-IP'si>:5080` adresinden bağlanır. Tarayıcıdan (Flutter web) gelen isteklere geliştirmede `localhost`'un her portu için CORS açıktır; başka kökenler `appsettings.json` → `Cors:AllowedOrigins` listesine eklenir. Güncel şema: [`docs/swagger.json`](swagger.json).
 
 | Uç | Giriş | Gövde | Başarılı yanıt |
 |---|---|---|---|
@@ -61,7 +63,7 @@ Token 24 saat geçerlidir (`Jwt:ExpiresMinutes`); yenileme ucu yok, süresi dolu
 | `POST /api/items/{id}/photos` | yalnızca sahibi | `multipart/form-data`, alan adı `files` (bir ya da birden çok dosya) | 200 ilan detayı (`photoUrls` güncel) |
 
 - Liste öğesi: `{ id, type, status, title, categoryId, categoryName, categoryIcon, locationId, locationName, eventDate, createdAt, coverPhotoUrl }`.
-- İlan detayı: liste alanları (`coverPhotoUrl` hariç) + `{ description, isAtOffice, ownerName, isOwner, verificationQuestion, photoUrls }`. `verificationQuestion` yalnızca sahibine ve görevliye dolu gelir.
+- İlan detayı: liste alanları (`coverPhotoUrl` hariç) + `{ description, isAtOffice, ownerName, isOwner, verificationQuestion, rejectionReason, photoUrls }`. `verificationQuestion` ve `rejectionReason` yalnızca sahibine ve görevliye dolu gelir; `rejectionReason` yalnızca `Rejected` ilanda doludur.
 - `eventDate`, `from`, `to` `YYYY-MM-DD` olarak gönderilir; saat dikkate alınmaz.
 - `verificationQuestion`, `Found` ilanda zorunludur.
 - Sahibi ilanı düzenleyince ilan yeniden `Pending` olur; görevlinin düzenlemesi durumu değiştirmez.

@@ -106,6 +106,18 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - **Kategoriler** (`/Admin/Categories`) ve **Konumlar** (`/Admin/Locations`): ekleme, düzenleme, silme. İlana bağlı bir kategori ya da konum silinemez.
 - Koordinatlar isteğe bağlıdır; virgül ya da nokta ile girilebilir (ör. `39,9334`).
 
+**İlanlar (liste ve arama)**
+
+- Menüden **İlanlar** (`/items`): yayındaki ilanlar 12'şer kart hâlinde, en yeni üstte. Giriş gerekmez.
+- Metin araması (başlık ve açıklama), tür, kategori, bina/derslik ve olay tarihi aralığıyla filtrelenir; filtreler adreste durur (ör. `/items?categoryId=2&page=3`), sayfa bağlantıları filtreleri korur.
+- Ana sayfadaki arama kutusu ve kategori kartları bu sayfaya gider. Telefonda filtre paneli arama kutusunun yanındaki düğmeyle açılır.
+
+**Görevli paneli (onay kuyruğu)**
+
+- `gorevli@ankara.edu.tr` (ya da admin) ile giriş yapınca menüde **Görevli** çıkar; yanındaki sarı rozet onay bekleyen ilan sayısıdır.
+- **Onay Kuyruğu** (`/Gorevli/Approvals`): onay bekleyen ilanlar en eskisi en üstte; sahibin adı, açıklama, fotoğraflar ve doğrulama sorusu görünür.
+- **Onayla**: ilan yayına girer. **Reddet**: açılan pencereye sebep yazılır (5–500 karakter); sahibi sebebi ilan detayında ve Profilim → Kapanmış sekmesinde görür, ilanı düzenleyip yeniden gönderebilir.
+
 **İlan açma ve detay**
 
 - Giriş yapan herkes menüden **İlan Aç** (`/Items/Create`) ile "Kaybettim" ya da "Buldum" ilanı açabilir. İlan **Onay bekliyor** durumunda açılır; görevli onaylayınca herkese görünür.
@@ -138,7 +150,14 @@ dotnet run --launch-profile http -- --DemoData:Seed=true
 **Web API**
 
 - Swagger: http://localhost:5227/swagger (yalnızca `Development`). `POST /api/auth/login` yanıtındaki token'ı **Authorize** düğmesine girin.
-- Uçlar ve kurallar için: [docs/API.md](docs/API.md).
+- Uçlar ve kurallar için: [docs/API.md](docs/API.md). Şema dosyası: [docs/swagger.json](docs/swagger.json).
+- **iPhone'dan bağlanmak için** uygulamayı ağa açık profille çalıştırın; telefon ve bilgisayar aynı Wi-Fi'da olmalı:
+
+```powershell
+dotnet run --launch-profile ag
+```
+
+  Telefonda `http://<bilgisayarın-IP'si>:5080` kullanılır (Windows: `ipconfig`, Mac: `ipconfig getifaddr en0`). Güvenlik duvarı sorarsa izin verin.
 
 **Migration'lar**
 
@@ -147,6 +166,7 @@ dotnet run --launch-profile http -- --DemoData:Seed=true
 | `Initial` | Identity tabloları (AspNetUsers…), Categories, Locations, Items ve ilişkileri |
 | `SeedLookups` | 7 kategori (Bootstrap ikon adlarıyla) ve 8 kampüs konumu |
 | `ItemPhotos` | İlan fotoğrafları tablosu (dosya yolu, sıra); ilan silinince fotoğraf satırları da silinir |
+| `ItemRejectionReason` | `Items.RejectionReason`: görevlinin ret sebebi (en fazla 500 karakter) |
 
 ## Lisanslar
 
