@@ -1,3 +1,4 @@
+using KampusKayipEsya.Web.Controllers.Api;
 using KampusKayipEsya.Web.Data;
 using KampusKayipEsya.Web.Models;
 using KampusKayipEsya.Web.Services;
@@ -63,6 +64,18 @@ builder.Services.AddSingleton<IEmailDomainValidator>(new EmailDomainValidator(
     builder.Configuration.GetSection("AllowedEmailDomains").Get<string[]>() ?? []));
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<INotificationService, NullNotificationService>();
+
+// API'ye tarayıcıdan (Flutter web testi) erişim: listedeki kökenler, geliştirmede ayrıca localhost'un her portu.
+// Token başlıkla gittiği için çerez/kimlik bilgisi paylaşılmaz. iOS yerel uygulaması CORS'a takılmaz.
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+var gelistirmeMi = builder.Environment.IsDevelopment();
+builder.Services.AddCors(options => options.AddPolicy(ApiControllerBase.CorsPolicy, policy => policy
+    .SetIsOriginAllowed(origin =>
+        corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase)
+        || (gelistirmeMi && Uri.TryCreate(origin, UriKind.Absolute, out var adres) && adres.IsLoopback))
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
 builder.Services.AddProblemDetails();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
@@ -115,6 +128,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

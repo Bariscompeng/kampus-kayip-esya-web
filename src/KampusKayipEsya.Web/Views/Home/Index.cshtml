@@ -10,12 +10,12 @@
     <p class="lead mb-4">
         Kayıp ve bulunan eşyalar tek yerde. İlanını aç, eşyan sahibine güvenle ulaşsın.
     </p>
-    <form class="row g-2" onsubmit="return false;">
+    <form class="row g-2" method="get" asp-controller="Items" asp-action="Index" role="search">
         <div class="col-12 col-md-9">
-            <input class="form-control form-control-lg" placeholder="Ne arıyorsun? (ör. siyah cüzdan)" disabled />
+            <input type="search" class="form-control form-control-lg" name="q" maxlength="100" placeholder="Ne arıyorsun? (ör. siyah cüzdan)" aria-label="İlanlarda ara" />
         </div>
         <div class="col-12 col-md-3 d-grid">
-            <button class="btn btn-primary btn-lg" type="button" disabled>
+            <button class="btn btn-primary btn-lg" type="submit">
                 <i class="bi bi-search me-1"></i>Ara
             </button>
         </div>
@@ -33,12 +33,12 @@ else
         @foreach (var kategori in Model.Categories)
         {
             <div class="col">
-                <div class="card h-100 text-center shadow-sm">
+                <a class="card h-100 text-center shadow-sm text-reset text-decoration-none" asp-controller="Items" asp-action="Index" asp-route-categoryId="@kategori.Id">
                     <div class="card-body">
                         <i class="bi @kategori.Icon fs-2 text-primary"></i>
                         <div class="mt-2 fw-semibold">@kategori.Name</div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>

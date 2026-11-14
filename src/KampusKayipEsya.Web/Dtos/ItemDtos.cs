@@ -76,7 +76,7 @@ public record ItemListDto(
     DateTime CreatedAt,
     string? CoverPhotoUrl);
 
-// E-posta, telefon ve OwnerId bilinçli olarak yok; VerificationQuestion yalnızca sahibine ve görevliye dolu gelir.
+// E-posta, telefon ve OwnerId bilinçli olarak yok; VerificationQuestion ve RejectionReason yalnızca sahibine ve görevliye dolu gelir.
 public record ItemDetailDto(
     int Id,
     ItemType Type,
@@ -94,6 +94,7 @@ public record ItemDetailDto(
     string OwnerName,
     bool IsOwner,
     string? VerificationQuestion,
+    string? RejectionReason,
     IReadOnlyList<string> PhotoUrls);
 
 public static class ItemDtoMapper
@@ -129,6 +130,7 @@ public static class ItemDtoMapper
         item.Owner.ShortName,
         viewer.Owns(item),
         viewer.Owns(item) || viewer.IsStaff ? item.VerificationQuestion : null,
+        viewer.Owns(item) || viewer.IsStaff ? item.RejectionReason : null,
         item.Photos.OrderBy(p => p.Order).Select(p => photoUrl(p.Path)).ToList());
 
     private static string LocationName(Location location) =>

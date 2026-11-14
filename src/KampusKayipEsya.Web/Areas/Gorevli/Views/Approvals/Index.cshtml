@@ -1,0 +1,142 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models.Enums
+@using KampusKayipEsya.Web.ViewModels.Gorevli
+@model ApprovalQueueViewModel
+@{
+    ViewData["Title"] = "Onay Kuyruğu";
+    var tr = new CultureInfo("tr-TR");
+    var sayfa = Model.Bekleyenler.Page;
+}
+
+<h1 class="h3 mb-1">Onay Kuyruğu</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">
+        @(Model.Bekleyenler.TotalCount == 0 ? "Onay bekleyen ilan yok" : $"{Model.Bekleyenler.TotalCount} ilan onay bekliyor · en eskisi en üstte")
+    </li>
+</ol>
+
+@if (Model.Bekleyenler.Items.Count == 0)
+{
+    <div class="card">
+        <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            @(sayfa > 1 ? "Bu sayfada ilan kalmadı." : "Kuyruk boş. Yeni ilanlar açıldıkça burada görünecek.")
+            @if (sayfa > 1)
+            {
+                <div class="mt-2"><a asp-action="Index">İlk sayfaya dön</a></div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    @foreach (var ilan in Model.Bekleyenler.Items)
+    {
+        var fotograflar = ilan.Photos.OrderBy(p => p.Order).ToList();
+        <div class="card mb-3">
+            <div class="card-header d-flex flex-wrap gap-2 align-items-center">
+                <span class="badge text-bg-@(ilan.Type == ItemType.Found ? "success" : "danger")">@ilan.Type.ToTurkish()</span>
+                <span class="badge text-bg-light border"><i class="bi @(ilan.Category.Icon ?? "bi-tag") me-1"></i>@ilan.Category.Name</span>
+                <span class="small text-muted ms-auto"><i class="bi bi-hourglass-split me-1"></i>@ApprovalQueueViewModel.BeklemeSuresi(ilan.CreatedAt) bekliyor</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-8">
+                        <h2 class="h5 mb-1">
+                            <a href="/items/@ilan.Id" target="_blank" rel="noopener" class="text-decoration-none">@ilan.Title <i class="bi bi-box-arrow-up-right small"></i></a>
+                        </h2>
+                        <div class="small text-muted mb-2">
+                            <span class="text-nowrap"><i class="bi bi-person"></i> @ilan.Owner.FullName</span> ·
+                            <span class="text-nowrap"><i class="bi bi-geo-alt"></i> @ilan.Location.Building@(ilan.Location.FloorOrRoom is null ? "" : " – " + ilan.Location.FloorOrRoom)</span> ·
+                            <span class="text-nowrap"><i class="bi bi-calendar-event"></i> @ilan.EventDate.ToString("d MMMM yyyy", tr)</span>
+                        </div>
+                        <p class="mb-2" style="white-space: pre-line">@ilan.Description</p>
+                        @if (ilan.VerificationQuestion is not null)
+                        {
+                            <div class="small border rounded-3 p-2 bg-light">
+                                <span class="fw-semibold"><i class="bi bi-shield-lock me-1"></i>Doğrulama sorusu:</span> @ilan.VerificationQuestion
+                            </div>
+                        }
+                    </div>
+                    <div class="col-12 col-md-4">
+                        @if (fotograflar.Count == 0)
+                        {
+                            <div class="rounded border bg-light text-muted small d-flex align-items-center justify-content-center" style="height: 6rem">
+                                <i class="bi bi-image me-1"></i>Fotoğraf yok
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var foto in fotograflar)
+                                {
+                                    <a href="@Url.Content("~/" + foto.Path)" target="_blank" rel="noopener">
+                                        <img src="@Url.Content("~/" + foto.Path)" alt="@ilan.Title – fotoğraf @(foto.Order + 1)" width="72" height="72" class="rounded border object-fit-cover" />
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex flex-wrap gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#retPenceresi"
+                        data-baslik="@ilan.Title" data-adres="@Url.Action("Reject", new { id = ilan.Id, page = sayfa })">
+                    <i class="bi bi-x-circle me-1"></i>Reddet
+                </button>
+                <form asp-action="Approve" asp-route-id="@ilan.Id" asp-route-page="@sayfa" method="post" class="m-0">
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Onayla</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (Model.SayfaSayisi > 1)
+    {
+        <nav aria-label="Onay kuyruğu sayfaları" class="d-flex justify-content-between align-items-center">
+            <a class="btn btn-outline-secondary btn-sm @(sayfa <= 1 ? "disabled" : "")" asp-action="Index" asp-route-page="@(sayfa - 1)">
+                <i class="bi bi-chevron-left"></i> Önceki
+            </a>
+            <span class="small text-muted">Sayfa @sayfa / @Model.SayfaSayisi</span>
+            <a class="btn btn-outline-secondary btn-sm @(sayfa >= Model.SayfaSayisi ? "disabled" : "")" asp-action="Index" asp-route-page="@(sayfa + 1)">
+                Sonraki <i class="bi bi-chevron-right"></i>
+            </a>
+        </nav>
+    }
+}
+
+<div class="modal fade" id="retPenceresi" tabindex="-1" aria-labelledby="retBaslik" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="post" id="retFormu">
+            @Html.AntiForgeryToken()
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="retBaslik">İlanı reddet</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-2" id="retIlan"></p>
+                <label for="retSebep" class="form-label">Ret sebebi</label>
+                <textarea class="form-control" id="retSebep" name="Reason" rows="3" required
+                          minlength="@RejectItemViewModel.SebepEnAz" maxlength="@RejectItemViewModel.SebepEnFazla"
+                          placeholder="Ör. Fotoğrafta kişisel bilgi görünüyor; lütfen kapatıp yeniden gönderin."></textarea>
+                <div class="form-text">İlan sahibi bu sebebi görecek; ilanı düzenleyip yeniden onaya gönderebilir.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn btn-danger">Reddet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("retPenceresi").addEventListener("show.bs.modal", olay => {
+            const tetik = olay.relatedTarget;
+            document.getElementById("retFormu").action = tetik.dataset.adres;
+            document.getElementById("retIlan").textContent = "“" + tetik.dataset.baslik + "”";
+            document.getElementById("retSebep").value = "";
+        });
+        document.getElementById("retPenceresi").addEventListener("shown.bs.modal", () => document.getElementById("retSebep").focus());
+    </script>
+}

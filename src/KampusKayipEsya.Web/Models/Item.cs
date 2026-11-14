@@ -28,5 +28,8 @@ public class Item
     public AppUser? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }
 
+    // Görevli reddederken yazar; ilan yeniden onaya gönderilince silinir.
+    public string? RejectionReason { get; set; }
+
     public ICollection<ItemPhoto> Photos { get; set; } = new List<ItemPhoto>();
 }

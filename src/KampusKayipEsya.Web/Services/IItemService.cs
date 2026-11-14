@@ -33,6 +33,16 @@ public interface IItemService
 
     Task<ItemChangeResult> MarkResolvedAsync(int id, ItemViewer viewer, CancellationToken cancellationToken = default);
 
+    // Görevli onay kuyruğu: en eski bekleyen ilan önce.
+    Task<PagedResponse<Item>> GetPendingAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+
+    Task<int> CountPendingAsync(CancellationToken cancellationToken = default);
+
+    // Yalnızca Pending ilan onaylanır/reddedilir; değilse Conflict.
+    Task<ItemChangeResult> ApproveAsync(int id, string staffId, CancellationToken cancellationToken = default);
+
+    Task<ItemChangeResult> RejectAsync(int id, string staffId, string reason, CancellationToken cancellationToken = default);
+
     Task<PhotoChangeResult> AddPhotosAsync(int id, IReadOnlyCollection<IFormFile> photos, ItemViewer viewer, CancellationToken cancellationToken = default);
 }
 

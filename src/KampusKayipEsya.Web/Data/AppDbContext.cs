@@ -41,6 +41,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(i => i.Title).HasMaxLength(100).IsRequired();
             e.Property(i => i.Description).HasMaxLength(2000).IsRequired();
             e.Property(i => i.VerificationQuestion).HasMaxLength(300);
+            e.Property(i => i.RejectionReason).HasMaxLength(500);
             e.Property(i => i.Type).HasConversion<string>().HasMaxLength(20);
             e.Property(i => i.Status).HasConversion<string>().HasMaxLength(20);
 
