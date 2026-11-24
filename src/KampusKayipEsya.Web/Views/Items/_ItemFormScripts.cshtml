@@ -1,6 +1,23 @@
 <partial name="_ValidationScriptsPartial" />
+<div class="modal fade confirm-modal" id="cikisOnayi" tabindex="-1" aria-labelledby="cikisBaslik" aria-describedby="cikisMetin" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span class="confirm-icon" aria-hidden="true"><i class="bi bi-exclamation-lg"></i></span>
+                <h2 class="modal-title" id="cikisBaslik">Kaydedilmemiş değişiklikler var</h2>
+                <p id="cikisMetin">Bu sayfadan çıkarsan ilan formuna yazdıkların kaybolur.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" id="cikisOnayla">Değişiklikleri sil ve çık</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="formdaKal">Formda kal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     (() => {
+        // Doğrulama sorusu yalnızca "Buldum" seçiliyken gösterilir.
         const alan = document.getElementById("dogrulamaAlani");
         const turlar = document.querySelectorAll("input[name='Type']");
         const guncelle = () => {
@@ -10,26 +27,105 @@
         turlar.forEach(t => t.addEventListener("change", guncelle));
         guncelle();
 
+        // Açıklama karakter sayacı
+        document.querySelectorAll("[data-sayac-for]").forEach(sayac => {
+            const kutu = document.getElementById(sayac.dataset.sayacFor);
+            const sinir = kutu.maxLength;
+            const yaz = () => { sayac.textContent = `${kutu.value.length} / ${sinir}`; };
+            kutu.addEventListener("input", yaz);
+            yaz();
+        });
+
+        // Fotoğraf önizleme; ilk fotoğraf kapak olur.
         const secici = document.getElementById("Photos");
         const onizleme = document.getElementById("fotoOnizleme");
         const sinir = Number(secici.dataset.sinir ?? 5);
+        let adresler = [];
         secici.addEventListener("change", () => {
-            onizleme.innerHTML = "";
+            adresler.forEach(URL.revokeObjectURL);
+            adresler = [];
+            onizleme.replaceChildren();
             [...secici.files].forEach((dosya, sira) => {
                 const resim = document.createElement("img");
-                resim.src = URL.createObjectURL(dosya);
-                resim.alt = dosya.name;
-                resim.className = "rounded border object-fit-cover" + (sira === 0 ? " border-primary border-2" : "");
+                const adres = URL.createObjectURL(dosya);
+                adresler.push(adres);
+                resim.src = adres;
+                resim.alt = sira === 0 ? `Kapak: ${dosya.name}` : dosya.name;
                 resim.width = 96;
                 resim.height = 96;
+                if (sira === 0) resim.className = "is-cover";
                 onizleme.appendChild(resim);
             });
             if (secici.files.length > sinir) {
                 const uyari = document.createElement("div");
                 uyari.className = "text-danger small w-100";
-                uyari.textContent = `En fazla ${sinir} fotoğraf seçebilirsiniz.`;
+                uyari.textContent = sinir === 0
+                    ? "Bu ilanda fotoğraf sınırı doldu. Yeni fotoğraf eklemek için önce mevcut fotoğraflardan silin."
+                    : `En fazla ${sinir} fotoğraf seçebilirsiniz; ${secici.files.length} tane seçtiniz.`;
                 onizleme.appendChild(uyari);
             }
         });
+
+        // ---------- Kaydedilmemiş değişiklik uyarısı ----------
+        // Form, açıldığı andaki hâliyle karşılaştırılır: yazıp silmek "değişiklik" sayılmaz.
+        const form = secici.form;
+        const durum = () => {
+            const veri = new FormData(form);
+            veri.delete("__RequestVerificationToken");
+            veri.delete("Photos");
+            return JSON.stringify([...veri.entries()]);
+        };
+        const ilkHal = durum();
+        let gonderiliyor = false;
+        const degistiMi = () => !gonderiliyor && (secici.files.length > 0 || durum() !== ilkHal);
+
+        form.addEventListener("submit", olay => {
+            gonderiliyor = true;
+            // İstemci doğrulaması gönderimi durdurduysa uyarı geri gelsin.
+            setTimeout(() => { if (olay.defaultPrevented) gonderiliyor = false; });
+        });
+
+        // Site içinde başka sayfaya geçişte tarayıcının penceresi yerine sitenin kendi onay penceresi açılır.
+        const pencere = document.getElementById("cikisOnayi");
+        const cikisModal = bootstrap.Modal.getOrCreateInstance(pencere);
+        let bekleyenCikis = null;
+
+        document.addEventListener("click", olay => {
+            const baglanti = olay.target.closest("a[href]");
+            if (!baglanti || olay.defaultPrevented || olay.button !== 0 || olay.ctrlKey || olay.metaKey || olay.shiftKey || olay.altKey) return;
+            if (baglanti.target === "_blank" || baglanti.hasAttribute("download")) return;
+            const hedef = new URL(baglanti.href, location.href);
+            if (hedef.origin !== location.origin || hedef.href.split("#")[0] === location.href.split("#")[0]) return;
+            if (!degistiMi()) return;
+            olay.preventDefault();
+            bekleyenCikis = () => { location.href = hedef.href; };
+            cikisModal.show();
+        }, true);
+
+        // Başka bir formun gönderilmesi (ör. üst menüdeki Çıkış) için de aynı pencere.
+        document.addEventListener("submit", olay => {
+            const digerForm = olay.target;
+            if (digerForm === form || digerForm.closest("#cikisOnayi") || !degistiMi()) return;
+            olay.preventDefault();
+            olay.stopImmediatePropagation();
+            bekleyenCikis = () => { gonderiliyor = true; HTMLFormElement.prototype.submit.call(digerForm); };
+            cikisModal.show();
+        }, true);
+
+        document.getElementById("cikisOnayla").addEventListener("click", () => {
+            gonderiliyor = true; // tarayıcının kendi penceresi bir daha çıkmasın
+            const git = bekleyenCikis;
+            bekleyenCikis = null;
+            cikisModal.hide();
+            git?.();
+        });
+        pencere.addEventListener("shown.bs.modal", () => document.getElementById("formdaKal").focus());
+        pencere.addEventListener("hidden.bs.modal", () => { if (bekleyenCikis) { bekleyenCikis = null; gonderiliyor = false; } });
+
+        // Sekme kapatma, yenileme ve geri tuşu: bunları yalnızca tarayıcı sorabilir (görünümü değiştirilemez).
+        window.addEventListener("beforeunload", olay => {
+            if (degistiMi()) { olay.preventDefault(); olay.returnValue = ""; }
+        });
     })();
 </script>
+

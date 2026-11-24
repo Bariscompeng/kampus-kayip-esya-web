@@ -3,20 +3,20 @@
 
 <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
 
-<div class="mb-4">
-    <label class="form-label d-block">@Html.DisplayNameFor(m => m.Type)</label>
+<fieldset class="mb-4">
+    <legend class="form-label fs-6">@Html.DisplayNameFor(m => m.Type)</legend>
     <div class="btn-group w-100" role="group">
         <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Lost" id="turKayip" />
-        <label class="btn btn-outline-danger" for="turKayip"><i class="bi bi-question-circle me-1"></i>Kaybettim</label>
+        <label class="btn btn-outline-danger" for="turKayip"><i class="bi bi-question-circle me-2" aria-hidden="true"></i>Kaybettim</label>
         <input type="radio" class="btn-check" asp-for="Type" value="@ItemType.Found" id="turBulundu" />
-        <label class="btn btn-outline-success" for="turBulundu"><i class="bi bi-check2-circle me-1"></i>Buldum</label>
+        <label class="btn btn-outline-success" for="turBulundu"><i class="bi bi-check2-circle me-2" aria-hidden="true"></i>Buldum</label>
     </div>
     <span asp-validation-for="Type" class="text-danger small"></span>
-</div>
+</fieldset>
 
 <div class="mb-3">
     <label asp-for="Title" class="form-label"></label>
-    <input asp-for="Title" class="form-control" maxlength="100" placeholder="ör. Siyah deri cüzdan" />
+    <input asp-for="Title" class="form-control" maxlength="100" placeholder="ör. Siyah deri cüzdan" autocomplete="off" />
     <span asp-validation-for="Title" class="text-danger small"></span>
 </div>
 
@@ -45,14 +45,17 @@
 
 <div class="mb-3">
     <label asp-for="Description" class="form-label"></label>
-    <textarea asp-for="Description" class="form-control" rows="4" maxlength="2000"
+    <textarea asp-for="Description" class="form-control" rows="4" maxlength="2000" aria-describedby="aciklamaSayac"
               placeholder="Rengi, markası, ayırt edici özellikleri, nerede ve ne zaman…"></textarea>
-    <span asp-validation-for="Description" class="text-danger small"></span>
+    <div class="d-flex justify-content-between gap-2">
+        <span asp-validation-for="Description" class="text-danger small"></span>
+        <span id="aciklamaSayac" class="form-text tabular ms-auto" data-sayac-for="Description">0 / 2000</span>
+    </div>
 </div>
 
-<div class="mb-3 border rounded-3 p-3 bg-light" id="dogrulamaAlani">
+<div class="mb-4 field-panel" id="dogrulamaAlani">
     <label asp-for="VerificationQuestion" class="form-label"></label>
-    <input asp-for="VerificationQuestion" class="form-control" maxlength="300" placeholder="ör. Cüzdanın içinde hangi banka kartı var?" />
+    <input asp-for="VerificationQuestion" class="form-control" maxlength="300" placeholder="ör. Cüzdanın içinde hangi banka kartı var?" autocomplete="off" />
     <div class="form-text">Cevabını yalnızca eşyanın gerçek sahibinin bilebileceği bir soru yazın; cevabı ilana yazmayın.</div>
     <span asp-validation-for="VerificationQuestion" class="text-danger small"></span>
 </div>

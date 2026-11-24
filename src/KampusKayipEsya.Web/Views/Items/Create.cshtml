@@ -1,27 +1,31 @@
 @model KampusKayipEsya.Web.ViewModels.ItemCreateViewModel
 @{
     ViewData["Title"] = "İlan Aç";
+    ViewData["Description"] = "Kaybettiğin ya da bulduğun eşya için ilan aç; görevli onayından sonra yayına girer.";
+    ViewData["NoIndex"] = true;
 }
 
 <div class="row justify-content-center">
     <div class="col-12 col-lg-9 col-xl-8">
-        <h1 class="h3 mb-1"><i class="bi bi-plus-circle me-2"></i>İlan Aç</h1>
-        <p class="text-muted mb-4">İlanınız kayıp eşya bürosu görevlisi onayladıktan sonra herkese görünür.</p>
-
-        <form asp-action="Create" method="post" enctype="multipart/form-data" class="card shadow-sm">
-            <div class="card-body p-4">
-                <partial name="_ItemFields" model="Model" />
-
-                <div class="mb-4">
-                    <label asp-for="Photos" class="form-label"></label>
-                    <input asp-for="Photos" type="file" class="form-control" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" data-sinir="5" />
-                    <div class="form-text">İsteğe bağlı. En fazla 5 fotoğraf, her biri en fazla 5 MB (JPG/PNG). İlk fotoğraf kapak olur.</div>
-                    <span asp-validation-for="Photos" class="text-danger small"></span>
-                    <div id="fotoOnizleme" class="d-flex flex-wrap gap-2 mt-2"></div>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-send me-1"></i>İlanı Gönder</button>
+        <div class="page-head">
+            <div>
+                <h1 class="h3">İlan aç</h1>
+                <p class="lede">İlanınız kayıp eşya bürosu görevlisi onayladıktan sonra herkese görünür.</p>
             </div>
+        </div>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="form-card">
+            <partial name="_ItemFields" model="Model" />
+
+            <div class="mb-4">
+                <label asp-for="Photos" class="form-label"></label>
+                <input asp-for="Photos" type="file" class="form-control" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" data-sinir="5" aria-describedby="fotoYardim" />
+                <div id="fotoYardim" class="form-text">İsteğe bağlı. En fazla 5 fotoğraf, her biri en fazla 5&nbsp;MB (JPG/PNG). İlk fotoğraf kapak olur.</div>
+                <span asp-validation-for="Photos" class="text-danger small"></span>
+                <div id="fotoOnizleme" class="photo-preview" aria-live="polite"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-send me-2" aria-hidden="true"></i>İlanı onaya gönder</button>
         </form>
     </div>
 </div>

@@ -19,11 +19,15 @@ public static class ItemEnumExtensions
         _ => status.ToString()
     };
 
+    /// <summary>Durum rozetinin CSS sınıfı (site.css: .status-*).</summary>
     public static string BadgeClass(this ItemStatus status) => status switch
     {
-        ItemStatus.Pending => "text-bg-warning",
-        ItemStatus.Published => "text-bg-success",
-        ItemStatus.Rejected => "text-bg-danger",
-        _ => "text-bg-secondary"
+        ItemStatus.Pending => "status status-pending",
+        ItemStatus.Published => "status status-published",
+        ItemStatus.Rejected => "status status-rejected",
+        _ => "status status-closed"
     };
+
+    /// <summary>İlan türü etiketinin CSS sınıfı (site.css: .tag-*).</summary>
+    public static string TagClass(this ItemType type) => type == ItemType.Found ? "tag tag-found" : "tag tag-lost";
 }

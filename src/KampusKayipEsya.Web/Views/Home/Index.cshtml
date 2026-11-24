@@ -1,56 +1,64 @@
-﻿@model KampusKayipEsya.Web.ViewModels.HomeIndexViewModel
+@using KampusKayipEsya.Web.Models.Enums
+@model KampusKayipEsya.Web.ViewModels.HomeIndexViewModel
 @{
     ViewData["Title"] = "Ana Sayfa";
-    var bulunanSeridi = (Model.SonBulunanlar, "success", "Henüz yayında bulunan eşya ilanı yok.");
-    var kayipSeridi = (Model.SonKayiplar, "danger", "Henüz yayında kayıp ilanı yok.");
+    ViewData["Description"] = "Kampüste kaybolan ve bulunan eşyaların ilan panosu. Kayıp eşyanı ara, bulduğun eşya için ilan aç; eşya sahibine güvenle ulaşsın.";
+    var bulunanSeridi = (Model.SonBulunanlar, ItemType.Found, "Henüz yayında bulunan eşya ilanı yok.");
+    var kayipSeridi = (Model.SonKayiplar, ItemType.Lost, "Henüz yayında kayıp ilanı yok.");
 }
 
-<section class="p-4 p-md-5 mb-4 bg-light rounded-3 border">
-    <h1 class="display-6 fw-bold">Kampüste bir şey mi kaybettin?</h1>
-    <p class="lead mb-4">
-        Kayıp ve bulunan eşyalar tek yerde. İlanını aç, eşyan sahibine güvenle ulaşsın.
-    </p>
+<section class="hero-search" aria-labelledby="anaBaslik">
+    <h1 id="anaBaslik">Kampüste bir şey mi kaybettin?</h1>
+    <p class="lede">Kayıp ve bulunan eşyalar tek yerde. İlanını aç, eşyan sahibine güvenle ulaşsın.</p>
     <form class="row g-2" method="get" asp-controller="Items" asp-action="Index" role="search">
-        <div class="col-12 col-md-9">
-            <input type="search" class="form-control form-control-lg" name="q" maxlength="100" placeholder="Ne arıyorsun? (ör. siyah cüzdan)" aria-label="İlanlarda ara" />
+        <div class="col-12 col-md">
+            <label for="anaArama" class="visually-hidden">İlanlarda ara</label>
+            <input id="anaArama" type="search" class="form-control form-control-lg" name="q" maxlength="100"
+                   placeholder="Ne arıyorsun? (ör. siyah cüzdan)" autocomplete="off" enterkeyhint="search" />
         </div>
-        <div class="col-12 col-md-3 d-grid">
-            <button class="btn btn-primary btn-lg" type="submit">
-                <i class="bi bi-search me-1"></i>Ara
+        <div class="col-12 col-md-auto d-grid">
+            <button class="btn btn-primary btn-lg px-4" type="submit">
+                <i class="bi bi-search me-2" aria-hidden="true"></i>Ara
             </button>
         </div>
     </form>
+    <div class="hero-actions">
+        <a asp-controller="Items" asp-action="Index" asp-route-type="Found"><i class="bi bi-arrow-right arrow" aria-hidden="true"></i>Bulunan eşyalara göz at</a>
+        <a asp-controller="Items" asp-action="Create"><i class="bi bi-arrow-right arrow" aria-hidden="true"></i>Bir eşya buldum, ilan açacağım</a>
+    </div>
 </section>
 
-<h2 class="h4 mb-3">Kategoriler</h2>
-@if (Model.Categories.Count == 0)
-{
-    <div class="alert alert-warning">Henüz kategori yok. <code>dotnet ef database update</code> çalıştırıldı mı?</div>
-}
-else
-{
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 mb-5">
-        @foreach (var kategori in Model.Categories)
-        {
-            <div class="col">
-                <a class="card h-100 text-center shadow-sm text-reset text-decoration-none" asp-controller="Items" asp-action="Index" asp-route-categoryId="@kategori.Id">
-                    <div class="card-body">
-                        <i class="bi @kategori.Icon fs-2 text-primary"></i>
-                        <div class="mt-2 fw-semibold">@kategori.Name</div>
-                    </div>
+<section aria-labelledby="kategoriBaslik">
+    <h2 id="kategoriBaslik" class="section-title">Kategoriler</h2>
+    @if (Model.Categories.Count == 0)
+    {
+        <div class="empty-state mb-5">
+            <i class="bi bi-tags" aria-hidden="true"></i>
+            <strong>Henüz kategori eklenmemiş</strong>
+            <span>Kategoriler eklendiğinde ilanları buradan türüne göre gezebilirsiniz.</span>
+        </div>
+    }
+    else
+    {
+        <div class="category-grid">
+            @foreach (var kategori in Model.Categories)
+            {
+                <a class="category-tile" asp-controller="Items" asp-action="Index" asp-route-categoryId="@kategori.Id">
+                    <i class="bi @(kategori.Icon ?? "bi-tag")" aria-hidden="true"></i>
+                    <span>@kategori.Name</span>
                 </a>
-            </div>
-        }
-    </div>
-}
+            }
+        </div>
+    }
+</section>
 
-<div class="row g-4">
-    <div class="col-12 col-lg-6">
-        <h2 class="h4 mb-3"><i class="bi bi-check2-circle text-success me-1"></i>Son bulunan eşyalar</h2>
+<div class="row g-4 g-lg-5">
+    <section class="col-12 col-lg-6" aria-labelledby="bulunanBaslik">
+        <h2 id="bulunanBaslik" class="section-title"><span class="tag tag-found tag-lg" aria-hidden="true">Bulundu</span>Son bulunan eşyalar</h2>
         <partial name="_IlanSeridi" model="bulunanSeridi" />
-    </div>
-    <div class="col-12 col-lg-6">
-        <h2 class="h4 mb-3"><i class="bi bi-question-circle text-danger me-1"></i>Son kayıp ilanları</h2>
+    </section>
+    <section class="col-12 col-lg-6" aria-labelledby="kayipBaslik">
+        <h2 id="kayipBaslik" class="section-title"><span class="tag tag-lost tag-lg" aria-hidden="true">Kayıp</span>Son kayıp ilanları</h2>
         <partial name="_IlanSeridi" model="kayipSeridi" />
-    </div>
+    </section>
 </div>

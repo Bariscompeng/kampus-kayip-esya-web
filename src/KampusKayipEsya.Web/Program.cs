@@ -77,6 +77,9 @@ builder.Services.AddCors(options => options.AddPolicy(ApiControllerBase.CorsPoli
     .AllowAnyHeader()
     .AllowAnyMethod()));
 builder.Services.AddProblemDetails();
+// Razor çıktısında Türkçe karakterler (ü, ş, ı…) HTML varlığına çevrilmeden yazılır.
+builder.Services.Configure<Microsoft.Extensions.WebEncoders.WebEncoderOptions>(options =>
+    options.TextEncoderSettings = new System.Text.Encodings.Web.TextEncoderSettings(System.Text.Unicode.UnicodeRanges.All));
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -125,8 +128,21 @@ else
     app.UseWhen(c => c.Request.Path.StartsWithSegments("/api"), api => api.UseExceptionHandler());
 }
 
+// Gövdesiz 404/4xx yanıtlarında tarayıcı yerine sitenin kendi durum sayfası gösterilir; API yolları etkilenmez.
+app.UseWhen(c => !c.Request.Path.StartsWithSegments("/api"),
+    site => site.UseStatusCodePagesWithReExecute("/Home/Durum/{0}"));
+
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+// wwwroot'taki derleme zamanı dosyalarını MapStaticAssets sıkıştırılmış (br/gzip) ve önbellek başlıklarıyla sunar.
+// UseStaticFiles yalnızca çalışma anında yüklenen ilan fotoğrafları (/uploads) için; tüm wwwroot'a açılırsa
+// isteği önce o yakalar ve dosyalar sıkıştırılmadan gider.
+var yuklemeKlasoru = Path.Combine(app.Environment.WebRootPath, "uploads");
+Directory.CreateDirectory(yuklemeKlasoru);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(yuklemeKlasoru),
+    RequestPath = "/uploads"
+});
 app.UseRouting();
 app.UseCors();
 
