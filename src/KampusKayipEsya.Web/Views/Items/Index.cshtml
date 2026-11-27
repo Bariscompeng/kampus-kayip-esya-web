@@ -4,39 +4,51 @@
 @model ItemListViewModel
 @{
     ViewData["Title"] = "İlanlar";
+    ViewData["Description"] = "Kampüste kaybolan ve bulunan eşya ilanları. Kategoriye, binaya ve tarihe göre filtrele; en yeni ilan en üstte.";
     var tr = new CultureInfo("tr-TR");
     var f = Model.Filtre;
     var sayfa = Model.Sonuc.Page;
     var ilkSayfa = Math.Max(1, Math.Min(sayfa - 2, Model.SayfaSayisi - 4));
     var sonSayfa = Math.Min(Model.SayfaSayisi, ilkSayfa + 4);
+    var bugun = DateTime.Today.ToString("yyyy-MM-dd");
 }
 
-<form method="get" asp-action="Index" asp-controller="Items" role="search">
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-        <h1 class="h3 mb-0 me-auto"><i class="bi bi-card-list me-2"></i>İlanlar</h1>
-        <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>İlan aç</a>
+<form method="get" asp-action="Index" asp-controller="Items" role="search" aria-label="İlan arama ve filtreleri">
+    <div class="page-head">
+        <div>
+            <h1 class="h3">İlanlar</h1>
+            <p class="lede">Kampüste kaybolan ve bulunan eşyalar, en yeni ilan en üstte.</p>
+        </div>
     </div>
 
-    <div class="input-group mb-3">
-        <input type="search" class="form-control" name="q" value="@f.Q" maxlength="100"
-               placeholder="Ne arıyorsun? (ör. siyah cüzdan)" aria-label="İlanlarda ara" />
-        <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i><span class="d-none d-sm-inline ms-1">Ara</span></button>
-        <button class="btn btn-outline-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtrePaneli" aria-controls="filtrePaneli">
-            <i class="bi bi-funnel"></i><span class="visually-hidden">Filtreler</span>
+    <div class="input-group mb-4">
+        <label for="aramaKutusu" class="visually-hidden">İlanlarda ara</label>
+        <input id="aramaKutusu" type="search" class="form-control" name="q" value="@f.Q" maxlength="100"
+               placeholder="ör. siyah cüzdan" autocomplete="off" enterkeyhint="search" />
+        <button class="btn btn-primary px-3" type="submit" aria-label="Ara">
+            <i class="bi bi-search" aria-hidden="true"></i><span class="d-none d-sm-inline ms-2">Ara</span>
+        </button>
+        <button class="btn btn-outline-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtrePaneli"
+                aria-controls="filtrePaneli" aria-label="Filtreleri aç">
+            <i class="bi bi-sliders" aria-hidden="true"></i>
+            @if (Model.FiltreVarMi)
+            {
+                <span class="count-pill ms-1" aria-hidden="true">!</span>
+            }
         </button>
     </div>
 
     <div class="row g-4">
         <div class="col-md-4 col-lg-3">
             <div class="offcanvas-md offcanvas-start" tabindex="-1" id="filtrePaneli" aria-labelledby="filtreBaslik">
-                <div class="offcanvas-header">
+                <div class="offcanvas-header border-bottom">
                     <h2 class="offcanvas-title h5" id="filtreBaslik">Filtreler</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtrePaneli" aria-label="Kapat"></button>
                 </div>
-                <div class="offcanvas-body flex-column gap-3 w-100">
+                <div class="offcanvas-body flex-column filter-panel w-100">
                     <fieldset>
-                        <legend class="form-label fs-6 fw-semibold">İlan türü</legend>
-                        <div class="btn-group w-100" role="group">
+                        <legend class="form-label fs-6">İlan türü</legend>
+                        <div class="btn-group w-100" role="group" aria-label="İlan türü">
                             <input type="radio" class="btn-check" name="type" id="turHepsi" value="" checked="@(f.Type is null)" />
                             <label class="btn btn-outline-secondary btn-sm" for="turHepsi">Hepsi</label>
                             <input type="radio" class="btn-check" name="type" id="turKayip" value="Lost" checked="@(f.Type == ItemType.Lost)" />
@@ -46,32 +58,32 @@
                         </div>
                     </fieldset>
                     <div>
-                        <label for="kategori" class="form-label fw-semibold">Kategori</label>
+                        <label for="kategori" class="form-label">Kategori</label>
                         <select class="form-select" id="kategori" name="categoryId" asp-items="Model.Kategoriler">
                             <option value="">Tümü</option>
                         </select>
                     </div>
                     <div>
-                        <label for="konum" class="form-label fw-semibold">Bina / derslik</label>
+                        <label for="konum" class="form-label">Bina / derslik</label>
                         <select class="form-select" id="konum" name="locationId" asp-items="Model.Konumlar">
                             <option value="">Tümü</option>
                         </select>
                     </div>
-                    <div>
-                        <span class="form-label fw-semibold d-block">Olay tarihi</span>
+                    <fieldset>
+                        <legend class="form-label fs-6">Olay tarihi</legend>
                         <div class="row g-2">
-                            <div class="col-6 col-md-12 col-xl-6">
-                                <label for="baslangic" class="form-label small text-muted mb-0">En erken</label>
-                                <input type="date" class="form-control" id="baslangic" name="from" value="@f.From?.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <div class="col-6 col-md-12">
+                                <label for="baslangic" class="form-label small text-muted fw-normal mb-1">En erken</label>
+                                <input type="date" class="form-control" id="baslangic" name="from" value="@f.From?.ToString("yyyy-MM-dd")" max="@bugun" />
                             </div>
-                            <div class="col-6 col-md-12 col-xl-6">
-                                <label for="bitis" class="form-label small text-muted mb-0">En geç</label>
-                                <input type="date" class="form-control" id="bitis" name="to" value="@f.To?.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <div class="col-6 col-md-12">
+                                <label for="bitis" class="form-label small text-muted fw-normal mb-1">En geç</label>
+                                <input type="date" class="form-control" id="bitis" name="to" value="@f.To?.ToString("yyyy-MM-dd")" max="@bugun" />
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Uygula</button>
+                        <button type="submit" class="btn btn-outline-primary">Filtreleri uygula</button>
                         @if (Model.FiltreVarMi)
                         {
                             <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="Items">Filtreleri temizle</a>
@@ -82,72 +94,90 @@
         </div>
 
         <div class="col-md-8 col-lg-9">
-            <p class="text-muted small mb-3">
+            <p class="result-count" role="status">
                 @if (Model.Sonuc.TotalCount == 0)
                 {
                     @:Yayında eşleşen ilan yok.
                 }
                 else
                 {
-                    @:@Model.Sonuc.TotalCount ilan bulundu · en yeni ilan en üstte
+                    <strong>@Model.Sonuc.TotalCount</strong> @:ilan bulundu
+                    @if (Model.SayfaSayisi > 1)
+                    {
+                        @: · sayfa @sayfa / @Model.SayfaSayisi
+                    }
                 }
             </p>
 
             @if (Model.Sonuc.Items.Count == 0)
             {
-                <div class="border rounded-3 text-center text-muted py-5">
-                    <i class="bi bi-search fs-1 d-block mb-2"></i>
-                    @(Model.FiltreVarMi ? "Aramanıza uyan ilan bulunamadı. Filtreleri değiştirmeyi deneyin." : "Henüz yayında ilan yok.")
+                <div class="empty-state">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    @if (Model.FiltreVarMi)
+                    {
+                        <strong>Aramanıza uyan ilan bulunamadı</strong>
+                        <span>Daha genel bir kelime deneyin ya da filtreleri gevşetin.</span>
+                        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Items">Filtreleri temizle</a>
+                    }
+                    else
+                    {
+                        <strong>Henüz yayında ilan yok</strong>
+                        <span>Bir eşya kaybettiyseniz ya da bulduysanız ilk ilanı siz açın.</span>
+                        <a class="btn btn-primary" asp-action="Create" asp-controller="Items">İlan aç</a>
+                    }
                 </div>
             }
             else
             {
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+                <ul class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 list-unstyled mb-0">
                     @foreach (var ilan in Model.Sonuc.Items)
                     {
                         var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
-                        <div class="col">
-                            <a href="/items/@ilan.Id" class="card h-100 shadow-sm text-reset text-decoration-none">
-                                @if (kapak is not null)
-                                {
-                                    <img src="@Url.Content("~/" + kapak.Path)" class="card-img-top object-fit-cover" style="height: 10rem" alt="@ilan.Title" loading="lazy" />
-                                }
-                                else
-                                {
-                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-secondary" style="height: 10rem">
-                                        <i class="bi @(ilan.Category.Icon ?? "bi-image") display-5"></i>
+                        <li class="col">
+                            <a href="/items/@ilan.Id" class="item-card">
+                                <div class="item-card-media @(kapak is null ? (ilan.Type == ItemType.Found ? "is-found" : "is-lost") : "")">
+                                    @if (kapak is not null)
+                                    {
+                                        <img src="@Url.Content("~/" + kapak.Path)" alt="" width="400" height="250" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="placeholder-tag" aria-hidden="true"><i class="bi @(ilan.Category.Icon ?? "bi-tag")"></i></span>
+                                    }
+                                    <span class="@ilan.Type.TagClass()">@ilan.Type.ToTurkish()</span>
+                                </div>
+                                <div class="item-card-body">
+                                    <span class="@ilan.Type.TagClass() tag-inline">@ilan.Type.ToTurkish()</span>
+                                    <h2 class="item-card-title">@ilan.Title</h2>
+                                    <div class="item-meta">
+                                        <i class="bi bi-geo-alt" aria-hidden="true"></i>@ilan.Location.Building
+                                        · <time datetime="@ilan.EventDate.ToString("yyyy-MM-dd")">@ilan.EventDate.ToString("d MMM yyyy", tr)</time>
                                     </div>
-                                }
-                                <div class="card-body">
-                                    <div class="d-flex flex-wrap gap-1 mb-2">
-                                        <span class="badge text-bg-@(ilan.Type == ItemType.Found ? "success" : "danger")">@ilan.Type.ToTurkish()</span>
-                                        <span class="badge text-bg-light border">@ilan.Category.Name</span>
-                                    </div>
-                                    <h2 class="h6 card-title text-truncate mb-1">@ilan.Title</h2>
-                                    <div class="small text-muted text-truncate">
-                                        <i class="bi bi-geo-alt"></i> @ilan.Location.Building · <i class="bi bi-calendar-event"></i> @ilan.EventDate.ToString("d MMM yyyy", tr)
-                                    </div>
+                                    <div><span class="chip">@ilan.Category.Name</span></div>
                                 </div>
                             </a>
-                        </div>
+                        </li>
                     }
-                </div>
+                </ul>
 
                 @if (Model.SayfaSayisi > 1)
                 {
                     <nav aria-label="İlan sayfaları" class="mt-4">
-                        <ul class="pagination pagination-sm justify-content-center flex-wrap">
+                        <ul class="pagination justify-content-center flex-wrap">
                             <li class="page-item @(sayfa <= 1 ? "disabled" : "")">
-                                <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(sayfa - 1)" aria-label="Önceki">&laquo;</a>
+                                <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(sayfa - 1)"
+                                   aria-label="Önceki sayfa" aria-disabled="@(sayfa <= 1 ? "true" : null)"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
                             </li>
                             @for (var s = ilkSayfa; s <= sonSayfa; s++)
                             {
-                                <li class="page-item @(s == sayfa ? "active" : "")" aria-current="@(s == sayfa ? "page" : null)">
-                                    <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(s)">@s</a>
+                                <li class="page-item @(s == sayfa ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(s)"
+                                       aria-current="@(s == sayfa ? "page" : null)" aria-label="Sayfa @s">@s</a>
                                 </li>
                             }
                             <li class="page-item @(sayfa >= Model.SayfaSayisi ? "disabled" : "")">
-                                <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(sayfa + 1)" aria-label="Sonraki">&raquo;</a>
+                                <a class="page-link" asp-action="Index" asp-controller="Items" asp-all-route-data="Model.SayfaAdresi(sayfa + 1)"
+                                   aria-label="Sonraki sayfa" aria-disabled="@(sayfa >= Model.SayfaSayisi ? "true" : null)"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                             </li>
                         </ul>
                     </nav>

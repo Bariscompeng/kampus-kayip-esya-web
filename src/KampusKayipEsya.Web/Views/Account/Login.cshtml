@@ -1,41 +1,39 @@
 @model KampusKayipEsya.Web.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Giriş";
+    ViewData["Description"] = "Okul e-posta adresinle Kampüs Kayıp Eşya hesabına giriş yap.";
+    ViewData["NoIndex"] = true;
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-7 col-lg-5">
-        <div class="card shadow-sm my-4">
-            <div class="card-body p-4">
-                <h1 class="h4 mb-4">Giriş</h1>
+<div class="auth-layout">
+<div class="auth-wrap">
+    <h1 class="mb-1">Giriş yap</h1>
+    <p class="text-muted mb-4">Okul e-posta adresinle giriş yap; ilan açmak ve ilanlarını yönetmek için gerekli.</p>
 
-                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+    <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate class="form-card">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" autocomplete="username" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-                    <div class="form-check mb-4">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
-                </form>
-
-                <p class="text-center small mt-3 mb-0">
-                    Hesabınız yok mu? <a asp-action="Register">Kayıt olun</a>
-                </p>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="username" spellcheck="false" autocapitalize="none" inputmode="email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
         </div>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Giriş yap</button>
+    </form>
+
+    <p class="auth-switch">Hesabın yok mu? <a class="auth-switch-link" asp-action="Register">Kayıt ol</a></p>
+</div>
+    <partial name="_NasilCalisir" />
 </div>
 
 @section Scripts {

@@ -1,0 +1,24 @@
+@model int
+@{
+    var bulunamadi = Model == 404;
+    ViewData["Title"] = bulunamadi ? "Sayfa bulunamadı" : "Bir sorun oluştu";
+    ViewData["NoIndex"] = true;
+}
+
+<div class="status-page">
+    <span class="status-code">@Model</span>
+    @if (bulunamadi)
+    {
+        <h1>Bu sayfa kayıp</h1>
+        <p>Aradığın sayfa taşınmış, silinmiş ya da adres yanlış yazılmış olabilir. Bir eşya arıyorsan ilanlara göz atmayı dene.</p>
+    }
+    else
+    {
+        <h1>Bu istek tamamlanamadı</h1>
+        <p>Sunucu isteği işleyemedi (kod @Model). Biraz sonra yeniden dene.</p>
+    }
+    <div class="actions">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Ana sayfaya dön</a>
+        <a asp-area="" asp-controller="Items" asp-action="Index" class="btn btn-outline-primary">İlanlara göz at</a>
+    </div>
+</div>

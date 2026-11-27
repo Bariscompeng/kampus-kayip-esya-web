@@ -8,24 +8,21 @@
     var sayfa = Model.Bekleyenler.Page;
 }
 
-<h1 class="h3 mb-1">Onay Kuyruğu</h1>
-<ol class="breadcrumb mb-4">
-    <li class="breadcrumb-item active">
-        @(Model.Bekleyenler.TotalCount == 0 ? "Onay bekleyen ilan yok" : $"{Model.Bekleyenler.TotalCount} ilan onay bekliyor · en eskisi en üstte")
-    </li>
-</ol>
+<h1 class="h3 mb-0">Onay kuyruğu</h1>
+<p class="admin-lede" role="status">
+    @(Model.Bekleyenler.TotalCount == 0 ? "Onay bekleyen ilan yok." : $"{Model.Bekleyenler.TotalCount} ilan onay bekliyor · en eskisi en üstte")
+</p>
 
 @if (Model.Bekleyenler.Items.Count == 0)
 {
-    <div class="card">
-        <div class="card-body text-center text-muted py-5">
-            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            @(sayfa > 1 ? "Bu sayfada ilan kalmadı." : "Kuyruk boş. Yeni ilanlar açıldıkça burada görünecek.")
-            @if (sayfa > 1)
-            {
-                <div class="mt-2"><a asp-action="Index">İlk sayfaya dön</a></div>
-            }
-        </div>
+    <div class="empty-state">
+        <i class="bi bi-inbox" aria-hidden="true"></i>
+        <strong>@(sayfa > 1 ? "Bu sayfada ilan kalmadı" : "Kuyruk boş")</strong>
+        <span>@(sayfa > 1 ? "Önceki sayfalardaki ilanlar işlenmiş olabilir." : "Yeni ilanlar açıldıkça burada görünecek.")</span>
+        @if (sayfa > 1)
+        {
+            <a class="btn btn-outline-primary" asp-action="Index">İlk sayfaya dön</a>
+        }
     </div>
 }
 else
@@ -33,45 +30,45 @@ else
     @foreach (var ilan in Model.Bekleyenler.Items)
     {
         var fotograflar = ilan.Photos.OrderBy(p => p.Order).ToList();
-        <div class="card mb-3">
-            <div class="card-header d-flex flex-wrap gap-2 align-items-center">
-                <span class="badge text-bg-@(ilan.Type == ItemType.Found ? "success" : "danger")">@ilan.Type.ToTurkish()</span>
-                <span class="badge text-bg-light border"><i class="bi @(ilan.Category.Icon ?? "bi-tag") me-1"></i>@ilan.Category.Name</span>
-                <span class="small text-muted ms-auto"><i class="bi bi-hourglass-split me-1"></i>@ApprovalQueueViewModel.BeklemeSuresi(ilan.CreatedAt) bekliyor</span>
+        <article class="queue-card" aria-labelledby="ilan-@ilan.Id">
+            <div class="queue-card-head">
+                <span class="@ilan.Type.TagClass()">@ilan.Type.ToTurkish()</span>
+                <span class="chip"><i class="bi @(ilan.Category.Icon ?? "bi-tag")" aria-hidden="true"></i>@ilan.Category.Name</span>
+                <span class="wait-time"><i class="bi bi-hourglass-split" aria-hidden="true"></i>@ApprovalQueueViewModel.BeklemeSuresi(ilan.CreatedAt) bekliyor</span>
             </div>
-            <div class="card-body">
+            <div class="queue-card-body">
                 <div class="row g-3">
                     <div class="col-12 col-md-8">
-                        <h2 class="h5 mb-1">
-                            <a href="/items/@ilan.Id" target="_blank" rel="noopener" class="text-decoration-none">@ilan.Title <i class="bi bi-box-arrow-up-right small"></i></a>
+                        <h2 class="queue-title" id="ilan-@ilan.Id">
+                            <a href="/items/@ilan.Id" target="_blank" rel="noopener">@ilan.Title <i class="bi bi-box-arrow-up-right small" aria-hidden="true"></i><span class="visually-hidden"> (yeni sekmede açılır)</span></a>
                         </h2>
-                        <div class="small text-muted mb-2">
-                            <span class="text-nowrap"><i class="bi bi-person"></i> @ilan.Owner.FullName</span> ·
-                            <span class="text-nowrap"><i class="bi bi-geo-alt"></i> @ilan.Location.Building@(ilan.Location.FloorOrRoom is null ? "" : " – " + ilan.Location.FloorOrRoom)</span> ·
-                            <span class="text-nowrap"><i class="bi bi-calendar-event"></i> @ilan.EventDate.ToString("d MMMM yyyy", tr)</span>
+                        <div class="item-meta mb-2" style="white-space: normal">
+                            <span class="text-nowrap"><i class="bi bi-person" aria-hidden="true"></i> @ilan.Owner.FullName</span> ·
+                            <span class="text-nowrap"><i class="bi bi-geo-alt" aria-hidden="true"></i> @ilan.Location.Building@(ilan.Location.FloorOrRoom is null ? "" : ", " + ilan.Location.FloorOrRoom)</span> ·
+                            <span class="text-nowrap"><i class="bi bi-calendar-event" aria-hidden="true"></i> @ilan.EventDate.ToString("d MMMM yyyy", tr)</span>
                         </div>
                         <p class="mb-2" style="white-space: pre-line">@ilan.Description</p>
                         @if (ilan.VerificationQuestion is not null)
                         {
-                            <div class="small border rounded-3 p-2 bg-light">
-                                <span class="fw-semibold"><i class="bi bi-shield-lock me-1"></i>Doğrulama sorusu:</span> @ilan.VerificationQuestion
+                            <div class="small field-panel py-2">
+                                <span class="fw-semibold"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>Doğrulama sorusu:</span> @ilan.VerificationQuestion
                             </div>
                         }
                     </div>
                     <div class="col-12 col-md-4">
                         @if (fotograflar.Count == 0)
                         {
-                            <div class="rounded border bg-light text-muted small d-flex align-items-center justify-content-center" style="height: 6rem">
-                                <i class="bi bi-image me-1"></i>Fotoğraf yok
+                            <div class="empty-state py-3 small">
+                                <i class="bi bi-image" aria-hidden="true"></i>Fotoğraf yok
                             </div>
                         }
                         else
                         {
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="queue-thumbs">
                                 @foreach (var foto in fotograflar)
                                 {
                                     <a href="@Url.Content("~/" + foto.Path)" target="_blank" rel="noopener">
-                                        <img src="@Url.Content("~/" + foto.Path)" alt="@ilan.Title – fotoğraf @(foto.Order + 1)" width="72" height="72" class="rounded border object-fit-cover" />
+                                        <img src="@Url.Content("~/" + foto.Path)" alt="@ilan.Title, fotoğraf @(foto.Order + 1)" width="72" height="72" loading="lazy" />
                                     </a>
                                 }
                             </div>
@@ -79,27 +76,27 @@ else
                     </div>
                 </div>
             </div>
-            <div class="card-footer d-flex flex-wrap gap-2 justify-content-end">
+            <div class="queue-card-foot">
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#retPenceresi"
                         data-baslik="@ilan.Title" data-adres="@Url.Action("Reject", new { id = ilan.Id, page = sayfa })">
-                    <i class="bi bi-x-circle me-1"></i>Reddet
+                    <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Reddet
                 </button>
                 <form asp-action="Approve" asp-route-id="@ilan.Id" asp-route-page="@sayfa" method="post" class="m-0">
-                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Onayla</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-2" aria-hidden="true"></i>Onayla ve yayınla</button>
                 </form>
             </div>
-        </div>
+        </article>
     }
 
     @if (Model.SayfaSayisi > 1)
     {
         <nav aria-label="Onay kuyruğu sayfaları" class="d-flex justify-content-between align-items-center">
             <a class="btn btn-outline-secondary btn-sm @(sayfa <= 1 ? "disabled" : "")" asp-action="Index" asp-route-page="@(sayfa - 1)">
-                <i class="bi bi-chevron-left"></i> Önceki
+                <i class="bi bi-chevron-left" aria-hidden="true"></i> Önceki
             </a>
             <span class="small text-muted">Sayfa @sayfa / @Model.SayfaSayisi</span>
             <a class="btn btn-outline-secondary btn-sm @(sayfa >= Model.SayfaSayisi ? "disabled" : "")" asp-action="Index" asp-route-page="@(sayfa + 1)">
-                Sonraki <i class="bi bi-chevron-right"></i>
+                Sonraki <i class="bi bi-chevron-right" aria-hidden="true"></i>
             </a>
         </nav>
     }

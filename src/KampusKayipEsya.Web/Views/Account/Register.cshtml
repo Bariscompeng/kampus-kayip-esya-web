@@ -1,53 +1,54 @@
 @model KampusKayipEsya.Web.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Kayıt Ol";
+    ViewData["Description"] = "Okul e-posta adresinle Kampüs Kayıp Eşya hesabı oluştur ve ilan aç.";
+    ViewData["NoIndex"] = true;
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
-        <div class="card shadow-sm my-4">
-            <div class="card-body p-4">
-                <h1 class="h4 mb-1">Kayıt Ol</h1>
-                <p class="text-muted small mb-4">Okul e-posta adresinizle kayıt olabilirsiniz.</p>
+<div class="auth-layout">
+<div class="auth-wrap is-wide">
+    <h1 class="mb-1">Kayıt ol</h1>
+    <p class="text-muted mb-4">Okul e-posta adresinle kayıt olabilirsin.</p>
 
-                <form asp-action="Register" method="post" novalidate>
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+    <form asp-action="Register" method="post" novalidate class="form-card">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label"></label>
-                        <input asp-for="FullName" class="form-control" autocomplete="name" />
-                        <span asp-validation-for="FullName" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="StudentNo" class="form-label"></label>
-                        <input asp-for="StudentNo" class="form-control" inputmode="numeric" placeholder="Personel iseniz boş bırakın" />
-                        <span asp-validation-for="StudentNo" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" autocomplete="email" placeholder="ad.soyad@ogrenci.ankara.edu.tr" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-4">
-                        <label asp-for="ConfirmPassword" class="form-label"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
-                </form>
-
-                <p class="text-center small mt-3 mb-0">
-                    Hesabınız var mı? <a asp-action="Login">Giriş yapın</a>
-                </p>
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StudentNo" class="form-label"></label>
+            <input asp-for="StudentNo" class="form-control" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="ogrenciNoYardim" />
+            <div id="ogrenciNoYardim" class="form-text">Personelsen boş bırak.</div>
+            <span asp-validation-for="StudentNo" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="email" spellcheck="false" autocapitalize="none" inputmode="email"
+                   placeholder="ad.soyad@ogrenci.ankara.edu.tr" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            <div class="col-12 col-sm-6">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
             </div>
         </div>
-    </div>
+
+        <button type="submit" class="btn btn-primary w-100">Hesabımı oluştur</button>
+    </form>
+
+    <p class="auth-switch">Hesabın var mı? <a class="auth-switch-link" asp-action="Login">Giriş yap</a></p>
+</div>
+    <partial name="_NasilCalisir" />
 </div>
 
 @section Scripts {

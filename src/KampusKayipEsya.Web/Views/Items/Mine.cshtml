@@ -4,6 +4,7 @@
 @model MyItemsViewModel
 @{
     ViewData["Title"] = "Profilim";
+    ViewData["NoIndex"] = true;
     var sekmeler = new[]
     {
         (Anahtar: MyItemsViewModel.Bekleyen, Baslik: "Onay bekleyen", Simge: "bi-hourglass-split", Ilanlar: Model.Bekleyenler,
@@ -16,109 +17,114 @@
     var tr = new CultureInfo("tr-TR");
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+<div class="page-head">
     <div>
-        <h1 class="h3 mb-0"><i class="bi bi-person-circle me-2"></i>Profilim</h1>
-        <div class="text-muted small">@User.Identity?.Name · İlanlarım</div>
+        <h1 class="h3">Profilim</h1>
+        <p class="lede"><span translate="no">@User.Identity?.Name</span> · İlanlarım</p>
     </div>
-    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>Yeni ilan</a>
+    <a class="btn btn-outline-primary" asp-action="Create"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Yeni ilan</a>
 </div>
 
 <partial name="_IslemMesajlari" />
 
-<ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist">
+<div class="nav tabs-bar" role="tablist" aria-label="İlan durumları">
     @foreach (var sekme in sekmeler)
     {
         var aktif = sekme.Anahtar == Model.AktifSekme;
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-nowrap px-2 px-sm-3 @(aktif ? "active" : "")" id="sekme-@sekme.Anahtar" data-bs-toggle="pill"
-                    data-bs-target="#panel-@sekme.Anahtar" type="button" role="tab" aria-selected="@(aktif ? "true" : "false")">
-                <i class="bi @sekme.Simge me-1 d-none d-sm-inline"></i>@sekme.Baslik
-                <span class="badge rounded-pill @(aktif ? "text-bg-light" : "text-bg-secondary") ms-1">@sekme.Ilanlar.Count</span>
-            </button>
-        </li>
+        <button class="nav-link @(aktif ? "active" : "")" id="sekme-@sekme.Anahtar" data-bs-toggle="tab" data-sekme="@sekme.Anahtar"
+                data-bs-target="#panel-@sekme.Anahtar" type="button" role="tab" aria-controls="panel-@sekme.Anahtar"
+                aria-selected="@(aktif ? "true" : "false")" tabindex="@(aktif ? null : "-1")">
+            <i class="bi @sekme.Simge d-none d-sm-inline" aria-hidden="true"></i>@sekme.Baslik
+            <span class="tab-count">@sekme.Ilanlar.Count</span>
+        </button>
     }
-</ul>
+</div>
 
 <div class="tab-content">
     @foreach (var sekme in sekmeler)
     {
-        <div class="tab-pane fade @(sekme.Anahtar == Model.AktifSekme ? "show active" : "")" id="panel-@sekme.Anahtar" role="tabpanel">
+        <div class="tab-pane fade @(sekme.Anahtar == Model.AktifSekme ? "show active" : "")" id="panel-@sekme.Anahtar"
+             role="tabpanel" aria-labelledby="sekme-@sekme.Anahtar" tabindex="0">
             @if (sekme.Ilanlar.Count == 0)
             {
-                <div class="text-center text-muted border rounded-3 py-5">
-                    <i class="bi @sekme.Simge fs-1 d-block mb-2"></i>@sekme.Bos
+                <div class="empty-state">
+                    <i class="bi @sekme.Simge" aria-hidden="true"></i>
+                    <span>@sekme.Bos</span>
+                    @if (sekme.Anahtar != MyItemsViewModel.Kapanmis)
+                    {
+                        <a class="btn btn-outline-primary" asp-action="Create">İlan aç</a>
+                    }
                 </div>
             }
             else
             {
-                <div class="list-group">
+                <ul class="surface list-unstyled mb-0">
                     @foreach (var ilan in sekme.Ilanlar)
                     {
                         var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
                         var degisebilir = ilan.Status is not (ItemStatus.Resolved or ItemStatus.Archived);
-                        <div class="list-group-item py-3">
-                            <div class="d-flex gap-3">
-                                <a href="/items/@ilan.Id" class="flex-shrink-0">
-                                    @if (kapak is not null)
+                        <li class="my-item">
+                            <a href="/items/@ilan.Id" class="flex-shrink-0" tabindex="-1" aria-hidden="true">
+                                @if (kapak is not null)
+                                {
+                                    <img src="@Url.Content("~/" + kapak.Path)" alt="" width="80" height="80" class="my-item-thumb" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="my-item-thumb"><i class="bi @(ilan.Category.Icon ?? "bi-image")"></i></span>
+                                }
+                            </a>
+                            <div class="my-item-body">
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <span class="@ilan.Type.TagClass()">@ilan.Type.ToTurkish()</span>
+                                    <span class="@ilan.Status.BadgeClass()">@ilan.Status.ToTurkish()</span>
+                                    @if (ilan.Photos.Count > 0)
                                     {
-                                        <img src="@Url.Content("~/" + kapak.Path)" alt="@ilan.Title" width="88" height="88" class="rounded border object-fit-cover" />
-                                    }
-                                    else
-                                    {
-                                        <div class="rounded border bg-light d-flex align-items-center justify-content-center text-secondary" style="width: 88px; height: 88px">
-                                            <i class="bi @(ilan.Category.Icon ?? "bi-image") fs-2"></i>
-                                        </div>
-                                    }
-                                </a>
-                                <div class="flex-grow-1" style="min-width: 0">
-                                    <div class="d-flex flex-wrap gap-1 mb-1">
-                                        <span class="badge text-bg-@(ilan.Type == ItemType.Found ? "success" : "danger")">@ilan.Type.ToTurkish()</span>
-                                        <span class="badge @ilan.Status.BadgeClass()">@ilan.Status.ToTurkish()</span>
-                                        @if (ilan.Photos.Count > 0)
-                                        {
-                                            <span class="badge text-bg-light border"><i class="bi bi-images me-1"></i>@ilan.Photos.Count</span>
-                                        }
-                                    </div>
-                                    <a href="/items/@ilan.Id" class="fw-semibold text-decoration-none d-block text-truncate">@ilan.Title</a>
-                                    <div class="small text-muted">
-                                        <i class="bi bi-geo-alt"></i> @ilan.Location.Building
-                                        · <i class="bi bi-calendar-event"></i> @ilan.EventDate.ToString("d MMM yyyy", tr)
-                                    </div>
-                                    @if (ilan.Status == ItemStatus.Rejected && ilan.RejectionReason is not null)
-                                    {
-                                        <div class="small text-danger mt-1"><i class="bi bi-x-circle me-1"></i>Ret sebebi: @ilan.RejectionReason</div>
+                                        <span class="chip"><i class="bi bi-images" aria-hidden="true"></i>@ilan.Photos.Count<span class="visually-hidden"> fotoğraf</span></span>
                                     }
                                 </div>
+                                <a href="/items/@ilan.Id" class="my-item-title">@ilan.Title</a>
+                                <div class="item-meta">
+                                    <i class="bi bi-geo-alt" aria-hidden="true"></i>@ilan.Location.Building
+                                    · <time datetime="@ilan.EventDate.ToString("yyyy-MM-dd")">@ilan.EventDate.ToString("d MMM yyyy", tr)</time>
+                                </div>
+                                @if (ilan.Status == ItemStatus.Rejected && ilan.RejectionReason is not null)
+                                {
+                                    <div class="reject-note"><i class="bi bi-x-circle" aria-hidden="true"></i><span><strong>Ret sebebi:</strong> @ilan.RejectionReason</span></div>
+                                }
                             </div>
-                            <div class="d-flex flex-wrap gap-2 mt-2 justify-content-end">
-                                <a class="btn btn-sm btn-outline-secondary" href="/items/@ilan.Id"><i class="bi bi-eye me-1"></i>Görüntüle</a>
+                            <div class="my-item-actions">
                                 @if (degisebilir)
                                 {
-                                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@ilan.Id"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@ilan.Id"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Düzenle</a>
                                 }
                                 @if (ilan.Status == ItemStatus.Published)
                                 {
-                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
+                                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
                                             data-baslik="Teslim edildi olarak kapat" data-buton="Evet, teslim edildi" data-renk="btn-success"
-                                            data-mesaj="&quot;@ilan.Title&quot; ilanı kapanacak ve aramalarda görünmeyecek. Bu işlem geri alınamaz."
+                                            data-mesaj="“@ilan.Title” ilanı kapanacak ve aramalarda görünmeyecek. Bu işlem geri alınamaz."
                                             data-adres="@Url.Action("Resolve", new { id = ilan.Id })">
-                                        <i class="bi bi-check2-circle me-1"></i>Teslim edildi
+                                        <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Teslim edildi
                                     </button>
                                 }
                                 @if (degisebilir)
                                 {
                                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
                                             data-baslik="İlanı sil" data-buton="Evet, sil" data-renk="btn-danger"
-                                            data-mesaj="&quot;@ilan.Title&quot; ilanı ve fotoğrafları kalıcı olarak silinecek."
-                                            data-adres="@Url.Action("Delete", new { id = ilan.Id, sekme = sekme.Anahtar })">
-                                        <i class="bi bi-trash me-1"></i>Sil
+                                            data-mesaj="“@ilan.Title” ilanı ve fotoğrafları kalıcı olarak silinecek."
+                                            data-adres="@Url.Action("Delete", new { id = ilan.Id, sekme = sekme.Anahtar })"
+                                            aria-label="@ilan.Title ilanını sil">
+                                        <i class="bi bi-trash me-1" aria-hidden="true"></i>Sil
                                     </button>
                                 }
+                                @if (!degisebilir)
+                                {
+                                    <a class="btn btn-sm btn-outline-secondary" href="/items/@ilan.Id">Görüntüle</a>
+                                }
                             </div>
-                        </div>
+                        </li>
                     }
-                </div>
+                </ul>
             }
         </div>
     }
@@ -152,5 +158,12 @@
             buton.textContent = tetik.dataset.buton;
             buton.className = "btn " + tetik.dataset.renk;
         });
+
+        // Seçili sekmeyi adres çubuğuna yaz: yenileme ve geri tuşu aynı sekmeye döner.
+        document.querySelectorAll("[data-sekme]").forEach(sekme => sekme.addEventListener("shown.bs.tab", () => {
+            const adres = new URL(location.href);
+            adres.searchParams.set("sekme", sekme.dataset.sekme);
+            history.replaceState(null, "", adres);
+        }));
     </script>
 }

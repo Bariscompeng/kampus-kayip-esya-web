@@ -230,6 +230,6 @@ public class ItemsController(AppDbContext context, IItemService itemService, IPh
         await context.Locations
             .AsNoTracking()
             .OrderBy(l => l.Building).ThenBy(l => l.FloorOrRoom)
-            .Select(l => new SelectListItem(l.FloorOrRoom == null ? l.Building : l.Building + " – " + l.FloorOrRoom, l.Id.ToString()))
+            .Select(l => new SelectListItem(l.FloorOrRoom == null ? l.Building : l.Building + ", " + l.FloorOrRoom, l.Id.ToString()))
             .ToListAsync();
 }

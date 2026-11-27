@@ -1,6 +1,32 @@
-﻿@{
+@{
     ViewData["Title"] = "Gizlilik";
+    ViewData["Description"] = "Kampüs Kayıp Eşya hangi bilgileri saklar, ilanlarda neler görünür ve iletişim nasıl kurulur.";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Telefon numarası ve e-posta adresi ilanlarda hiçbir zaman gösterilmez; eşya sahibiyle iletişim yalnızca site içi mesajlaşmayla kurulur.</p>
+<article class="prose">
+    <h1 class="h3 mb-3">Gizlilik</h1>
+    <p class="lede-lg">Telefon numarası ve e-posta adresi ilanlarda hiçbir zaman gösterilmez; eşya sahibiyle iletişim yalnızca site içi mesajlaşmayla kurulur.</p>
+
+    <h2>Hesabında saklananlar</h2>
+    <ul>
+        <li>Ad soyad, okul e-posta adresi ve şifren (şifre düz metin olarak değil, özetlenmiş olarak saklanır).</li>
+        <li>Öğrenci numarası, girdiysen. Personel hesaplarında bu alan boş kalır.</li>
+        <li>Kayıt tarihin.</li>
+    </ul>
+
+    <h2>İlanda herkesin gördükleri</h2>
+    <ul>
+        <li>Başlık, açıklama, kategori, bina ve tarih.</li>
+        <li>Eklediğin fotoğraflar.</li>
+        <li>Adın yalnızca kısaltılmış haliyle, örneğin “Ayşe Y.”</li>
+    </ul>
+
+    <h2>Yalnızca senin ve büronun gördükleri</h2>
+    <ul>
+        <li>Onay bekleyen ya da reddedilen ilanların ve ret sebebi.</li>
+        <li>Bulunan eşya ilanındaki doğrulama sorusu. Cevabını ilana yazma; soru, eşyanın gerçek sahibini ayırt etmek içindir.</li>
+    </ul>
+
+    <h2>İlanını kaldırmak</h2>
+    <p>Teslim edilmemiş ilanlarını <a asp-controller="Items" asp-action="Mine">Profilim</a> sayfasından istediğin zaman silebilirsin; ilan ve fotoğrafları birlikte silinir. Teslim edildi olarak kapattığın ilan aramalarda görünmez.</p>
+</article>

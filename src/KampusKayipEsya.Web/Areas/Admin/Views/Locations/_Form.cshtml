@@ -5,25 +5,25 @@
 
 <div class="mb-3">
     <label asp-for="Building" class="form-label"></label>
-    <input asp-for="Building" class="form-control" maxlength="100" placeholder="Mühendislik Fakültesi" />
+    <input asp-for="Building" class="form-control" autocomplete="off" maxlength="100" placeholder="Mühendislik Fakültesi" />
     <span asp-validation-for="Building" class="text-danger small"></span>
 </div>
 
 <div class="mb-3">
     <label asp-for="FloorOrRoom" class="form-label"></label>
-    <input asp-for="FloorOrRoom" class="form-control" maxlength="100" placeholder="Zemin kat, Amfi 2 … (isteğe bağlı)" />
+    <input asp-for="FloorOrRoom" class="form-control" autocomplete="off" maxlength="100" placeholder="Zemin kat, Amfi 2 … (isteğe bağlı)" />
     <span asp-validation-for="FloorOrRoom" class="text-danger small"></span>
 </div>
 
 <div class="row g-3 mb-2">
     <div class="col-12 col-sm-6">
         <label asp-for="Latitude" class="form-label"></label>
-        <input asp-for="Latitude" class="form-control" inputmode="decimal" placeholder="39.9334" />
+        <input asp-for="Latitude" class="form-control" autocomplete="off" inputmode="decimal" placeholder="39.9334" />
         <span asp-validation-for="Latitude" class="text-danger small"></span>
     </div>
     <div class="col-12 col-sm-6">
         <label asp-for="Longitude" class="form-label"></label>
-        <input asp-for="Longitude" class="form-control" inputmode="decimal" placeholder="32.8597" />
+        <input asp-for="Longitude" class="form-control" autocomplete="off" inputmode="decimal" placeholder="32.8597" />
         <span asp-validation-for="Longitude" class="text-danger small"></span>
     </div>
 </div>

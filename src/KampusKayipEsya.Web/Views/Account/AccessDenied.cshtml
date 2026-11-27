@@ -1,10 +1,14 @@
 @{
     ViewData["Title"] = "Erişim Reddedildi";
+    ViewData["NoIndex"] = true;
 }
 
-<div class="text-center my-5">
-    <i class="bi bi-shield-lock display-4 text-danger"></i>
-    <h1 class="h4 mt-3">Erişim reddedildi</h1>
-    <p class="text-muted">Bu sayfayı görüntülemek için yetkiniz yok.</p>
-    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">Ana sayfaya dön</a>
+<div class="status-page">
+    <span class="status-code">403</span>
+    <h1>Bu sayfaya erişim yetkin yok</h1>
+    <p>Bu bölüm yalnızca kayıp eşya bürosu görevlileri ve yöneticiler içindir. Yanlış hesapla giriş yaptıysan çıkış yapıp yeniden dene.</p>
+    <div class="actions">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Ana sayfaya dön</a>
+        <a asp-area="" asp-controller="Items" asp-action="Index" class="btn btn-outline-primary">İlanlara göz at</a>
+    </div>
 </div>

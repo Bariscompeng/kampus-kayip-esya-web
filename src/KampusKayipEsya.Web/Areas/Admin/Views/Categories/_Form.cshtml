@@ -5,7 +5,7 @@
 
 <div class="mb-3">
     <label asp-for="Name" class="form-label"></label>
-    <input asp-for="Name" class="form-control" maxlength="50" />
+    <input asp-for="Name" class="form-control" autocomplete="off" maxlength="50" />
     <span asp-validation-for="Name" class="text-danger small"></span>
 </div>
 
@@ -13,7 +13,7 @@
     <label asp-for="Icon" class="form-label"></label>
     <div class="input-group">
         <span class="input-group-text"><i id="simgeOnizleme" class="bi @(Model.Icon ?? "bi-question-square")"></i></span>
-        <input asp-for="Icon" class="form-control" maxlength="50" placeholder="bi-phone" />
+        <input asp-for="Icon" class="form-control" autocomplete="off" spellcheck="false" translate="no" maxlength="50" placeholder="bi-phone" />
     </div>
     <div class="form-text">
         Ad listesi: <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener">icons.getbootstrap.com</a>.

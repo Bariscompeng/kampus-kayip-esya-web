@@ -1,49 +1,99 @@
-﻿<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark" data-bs-theme="dark">
+@{
+    var aktifArea = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var aktifController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var aktifAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool Aktif(string controller, string? action = null, string area = "") =>
+        string.Equals(aktifArea, area, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(aktifController, controller, StringComparison.OrdinalIgnoreCase)
+        && (action is null || string.Equals(aktifAction, action, StringComparison.OrdinalIgnoreCase));
+    string? Mevcut(bool aktif) => aktif ? "page" : null;
+    var ilanlarAktif = Aktif("Items", "Index") || Aktif("Items", "Details");
+
+    // Sayfa başına başlık, açıklama ve kanonik adres (sosyal paylaşım ve arama motorları için).
+    var sayfaBasligi = $"{ViewData["Title"]} · Kampüs Kayıp Eşya";
+    var aciklama = ViewData["Description"] as string
+        ?? "Kampüste kaybolan ve bulunan eşyaların ilan panosu. Kayıp eşyanı ara, bulduğun eşya için ilan aç.";
+    var kok = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var kanonik = kok + (Context.Request.Path.Value ?? "/").ToLowerInvariant();
+}
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Kampüs Kayıp Eşya</title>
-    <script type="importmap"></script>
+    <meta name="theme-color" content="#18181a" />
+    @* Kayıtlı temayı ilk boyamadan önce uygula: sayfa yanlış temada yanıp sönmez. *@
+    <script>
+        (() => {
+            let tema = "dark";
+            try { const kayitli = localStorage.getItem("tema"); if (kayitli === "light" || kayitli === "dark") tema = kayitli; } catch { }
+            const kok = document.documentElement;
+            kok.dataset.theme = tema;
+            kok.setAttribute("data-bs-theme", tema);
+            document.querySelector('meta[name="theme-color"]').content = tema === "light" ? "#ffffff" : "#18181a";
+
+        })();
+    </script>
+    <title>@sayfaBasligi</title>
+    <meta name="description" content="@aciklama" />
+    <link rel="canonical" href="@kanonik" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content="Kampüs Kayıp Eşya" />
+    <meta property="og:title" content="@sayfaBasligi" />
+    <meta property="og:description" content="@aciklama" />
+    <meta property="og:url" content="@kanonik" />
+    <meta property="og:image" content="@kok/img/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@sayfaBasligi" />
+    <meta name="twitter:description" content="@aciklama" />
+    <meta name="twitter:image" content="@kok/img/og.png" />
+    @if (ViewData["NoIndex"] is true)
+    {
+        <meta name="robots" content="noindex" />
+    }
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="~/favicon.ico" sizes="32x32" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    @* İkon yazı tipi ilk boyamayı beklemesin: stil sayfası engellemeden yüklenir. *@
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" /></noscript>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/KampusKayipEsya.Web.styles.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <header>
-        <nav class="navbar navbar-expand-md navbar-dark bg-primary mb-4">
+    <a class="skip-link" href="#icerik">İçeriğe geç</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-md navbar-dark site-nav" aria-label="Ana menü">
             <div class="container">
-                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-search-heart me-1"></i>Kampüs Kayıp Eşya
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark" aria-hidden="true"></span>Kampüs Kayıp Eşya
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                <button type="button" class="theme-toggle order-md-last ms-auto ms-md-3" id="temaDugmesi" aria-label="Açık temaya geç">
+                    <i class="bi bi-moon-stars" aria-hidden="true"></i>
+                    <i class="bi bi-sun" aria-hidden="true"></i>
+                </button>
+                <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
                         data-bs-target="#anaMenu" aria-controls="anaMenu"
                         aria-expanded="false" aria-label="Menüyü aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="anaMenu">
-                    <ul class="navbar-nav me-auto">
+                    <ul class="navbar-nav me-auto gap-md-1 mt-2 mt-md-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house me-1"></i>Ana Sayfa
-                            </a>
+                            <a class="nav-link @(Aktif("Home", "Index") ? "active" : "")" aria-current="@Mevcut(Aktif("Home", "Index"))"
+                               asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Items" asp-action="Index">
-                                <i class="bi bi-card-list me-1"></i>İlanlar
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Items" asp-action="Create">
-                                <i class="bi bi-plus-circle me-1"></i>İlan Aç
-                            </a>
+                            <a class="nav-link @(ilanlarAktif ? "active" : "")" aria-current="@Mevcut(ilanlarAktif)"
+                               asp-area="" asp-controller="Items" asp-action="Index">İlanlar</a>
                         </li>
                         @if (User.IsInRole(Roles.Gorevli) || User.IsInRole(Roles.Admin))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="Gorevli" asp-controller="Home" asp-action="Index">
-                                    <i class="bi bi-clipboard-check me-1"></i>Görevli
+                                    Görevli paneli
                                     @await Component.InvokeAsync("PendingItemCount")
                                 </a>
                             </li>
@@ -51,9 +101,7 @@
                         @if (User.IsInRole(Roles.Admin))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                                    <i class="bi bi-speedometer2 me-1"></i>Yönetim
-                                </a>
+                                <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">Yönetim</a>
                             </li>
                         }
                     </ul>
@@ -63,14 +111,12 @@
         </nav>
     </header>
 
-    <div class="container flex-grow-1">
-        <main role="main" class="pb-4">
-            @RenderBody()
-        </main>
-    </div>
+    <main id="icerik" class="container flex-grow-1 page-main" tabindex="-1">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top py-3 text-muted small">
-        <div class="container d-flex flex-wrap justify-content-between gap-2">
+    <footer class="site-footer py-1">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
             <span>&copy; 2026 Kampüs Kayıp Eşya · BLM4581</span>
             <a asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
         </div>

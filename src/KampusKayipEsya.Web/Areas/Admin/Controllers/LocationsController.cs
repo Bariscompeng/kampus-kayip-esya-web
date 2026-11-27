@@ -133,5 +133,5 @@ public class LocationsController(AppDbContext context) : AdminControllerBase
     }
 
     private static string Etiket(Location konum) =>
-        konum.FloorOrRoom is null ? konum.Building : $"{konum.Building} – {konum.FloorOrRoom}";
+        konum.FloorOrRoom is null ? konum.Building : $"{konum.Building}, {konum.FloorOrRoom}";
 }

@@ -1,17 +1,24 @@
 @using Microsoft.AspNetCore.Identity
 @using KampusKayipEsya.Web.Models
 @inject SignInManager<AppUser> SignInManager
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    bool Aktif(string c, string a) => area == "" && controller == c && action == a;
+}
 
-<ul class="navbar-nav">
+<ul class="navbar-nav align-items-md-center gap-md-1">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="" asp-controller="Items" asp-action="Mine" title="@User.Identity?.Name">
-            <i class="bi bi-person-circle me-1"></i>Profilim
+        <a class="nav-link @(Aktif("Items", "Mine") ? "active" : "")" aria-current="@(Aktif("Items", "Mine") ? "page" : null)"
+           asp-area="" asp-controller="Items" asp-action="Mine" title="@User.Identity?.Name">
+            <i class="bi bi-person-circle me-2" aria-hidden="true"></i>Profilim
         </a>
     </li>
     <li class="nav-item">
-        <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+        <form class="m-0" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
             <button type="submit" class="nav-link btn btn-link">Çıkış</button>
         </form>
     </li>
@@ -19,10 +26,17 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+        <a class="nav-link @(Aktif("Account", "Login") ? "active" : "")" aria-current="@(Aktif("Account", "Login") ? "page" : null)"
+           asp-area="" asp-controller="Account" asp-action="Login">Giriş</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Giriş</a>
+        <a class="nav-link @(Aktif("Account", "Register") ? "active" : "")" aria-current="@(Aktif("Account", "Register") ? "page" : null)"
+           asp-area="" asp-controller="Account" asp-action="Register">Kayıt ol</a>
     </li>
 }
+    <li class="nav-item ms-md-2 mt-2 mt-md-0">
+        <a class="btn btn-primary nav-cta w-100" asp-area="" asp-controller="Items" asp-action="Create">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>İlan aç
+        </a>
+    </li>
 </ul>
