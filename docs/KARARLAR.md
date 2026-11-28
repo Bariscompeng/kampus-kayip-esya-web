@@ -97,3 +97,18 @@ Pending ──görevli onaylar──▶ Published ──sahibi/görevli teslim�
 | API CORS: geliştirmede `localhost`/`127.0.0.1`'in her portu, diğer ortamlarda yalnızca `Cors:AllowedOrigins`; kimlik bilgisi (çerez) paylaşılmaz, yalnızca `/api` uçlarında | Flutter web testi çalışır; MVC sayfaları başka köken için açılmaz | ☐ Şeyma ☐ Barış |
 | Token'a `unique_name` (ad soyad) eklendi; `"name"` değil, çünkü sunucuda `ClaimTypes.Name`'e yalnızca `unique_name` eşleniyor | `User.Identity.Name` API'de de dolu; 6. haftada SignalR mesajlarında gönderen adı için | ☐ Şeyma ☐ Barış |
 | iPhone erişimi için `ag` çalıştırma profili (`http://0.0.0.0:5080`); `docs/swagger.json` depoda | iOS aynı ağdan bağlanır; iOS ekibi şemayı uygulama çalışmadan da görür | ☐ Şeyma ☐ Barış |
+
+## Teknik kararlar (5. hafta)
+
+| Karar | Gerekçe | Onay |
+|---|---|---|
+| 4. haftadaki arayüz yenilemesi (koyu/açık tema, `DESIGN.md`) `main`'e alındı; yeni sayfalar bu tasarım sistemiyle yazılır | Tüm sayfalar aynı görünümde; bileşenler (`.tag`, `.status`, `.my-item`, `.empty-state`) yeniden kullanılır | ☐ Şeyma ☐ Barış |
+| Talep tablosu `Claims` (C# sınıfı `ItemClaim`): `ItemId`, `ClaimantId`, `VerificationAnswer` (300), `Message` (500), `Status` (metin), `CreatedAt`, `DecidedAt`. Durumlar: `Pending`, `Approved`, `Rejected`, `Cancelled` | Sınıf adı `Claim` olsaydı `System.Security.Claims.Claim` ile çakışıyordu (JWT ve kimlik kodu); tablo adı plandaki gibi kaldı | ☐ Şeyma ☐ Barış |
+| Talep yalnızca **yayındaki "Buldum"** ilanına açılır; ilan sahibi kendi ilanına talep açamaz | "Bu benim" eşyayı bulan kişiye sahiplik iddiasıdır; kayıp ilanında karşılığı "Ben buldum" olacak (sonraki haftalar) | ☐ Şeyma ☐ Barış |
+| Aynı kişi aynı ilana tek açık talep: `(ItemId, ClaimantId)` üzerinde **filtreli benzersiz indeks** (`[Status] <> 'Cancelled'`); geri çekilen talep sonrası yeniden talep açılabilir | Aynı ilana tekrar tekrar talep (spam) engellenir; kural veritabanında da garanti, eşzamanlı istekte ikinci kayıt reddedilir | ☐ Şeyma ☐ Barış |
+| İlan silinince talepleri de silinir (`Claims → Items` Cascade); kullanıcı tarafı `Restrict` | İlansız talebin anlamı yok; kullanıcı silinmesi talep geçmişini yok etmez | ☐ Şeyma ☐ Barış |
+| Doğrulama cevabını yalnızca ilan sahibi (Gelen talepler), talep eden (Taleplerim) ve görevli görür; talep edenin e-postası gösterilmez, kısaltılmış ad kullanılır | Cevap sahiplik kanıtıdır, herkese açılmaz; kişisel veri paylaşılmaz | ☐ Şeyma ☐ Barış |
+| Talep eden yalnızca **yanıt bekleyen** talebini geri çekebilir (`Cancelled` + `DecidedAt`); geri çekilen talep sahibinin listesinde görünmez | Sonuçlanmış talebin geçmişi değişmez | ☐ Şeyma ☐ Barış |
+| Yeni talepte ilan sahibine `INotificationService` ile `ClaimReceived` bildirimi (bağlantı `/gelen-talepler`) | 6. haftada gerçek bildirim servisi takılınca talep kodu değişmez | ☐ Şeyma ☐ Barış |
+| Talep kuralları `IClaimService`'te; onay/ret ve Claims API aynı servise eklenecek | Web sayfaları ve API aynı kuralı kullanır (ilanlardaki `IItemService` yaklaşımıyla aynı) | ☐ Şeyma ☐ Barış |
+| Profil sayfalarında ortak menü (`_ProfilMenusu`: İlanlarım · Taleplerim · Gelen talepler) ve ortak onay penceresi (`_OnayPenceresi`) | Silme, teslim ve geri çekme aynı pencereyi kullanır; kod tekrarı yok | ☐ Şeyma ☐ Barış |

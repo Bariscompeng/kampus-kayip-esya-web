@@ -132,6 +132,15 @@ Tarayıcıda http://localhost:5227 açılır; ana sayfada 7 kategori kartı gör
 - **Düzenle**: form alanları değiştirilebilir, mevcut fotoğraflar silinebilir, yeni fotoğraf eklenebilir (toplam en fazla 5). Yayındaki ya da reddedilmiş ilan kaydedilince yeniden görevli onayına gider.
 - **Teslim edildi**: yalnızca yayındaki ilan kapatılabilir; kapanan ilan düzenlenemez ve sahibi tarafından silinemez.
 - **Sil**: onay penceresinden sonra ilan, fotoğraf satırları ve fotoğraf klasörü silinir.
+- Profil sayfalarının üstündeki menü: **İlanlarım** (`/profilim`) · **Taleplerim** (`/taleplerim`) · **Gelen talepler** (`/gelen-talepler`, yanıt bekleyen sayısıyla).
+
+**"Bu benim" talepleri**
+
+- Yayındaki bir **Buldum** ilanının detay sayfasında **Bu benim** düğmesi (`/items/{id}/talep`): kullanıcı ilanın doğrulama sorusunu cevaplar (2–300 karakter), isteğe bağlı not ekler (en fazla 500). Giriş yapmamış kullanıcı önce giriş sayfasına yönlenir.
+- İlanın sahibi kendi ilanına talep açamaz; aynı kişi aynı ilana yalnızca bir açık talep gönderebilir (geri çektiyse yeniden gönderebilir). Kayıp ve onay bekleyen ilanlara talep açılmaz.
+- **Taleplerim**: kullanıcının gönderdiği talepler, durumu (Yanıt bekliyor / Onaylandı / Reddedildi / Geri çekildi), verdiği cevap; yanıt bekleyen talep **Geri çek** ile geri alınabilir.
+- **Gelen talepler**: kullanıcının "Buldum" ilanlarına gelen talepler; talep edenin kısaltılmış adı, doğrulama sorusu ve cevap. E-posta ve telefon gösterilmez.
+- İlan silinince talepleri de silinir. Talebi onaylama/reddetme ve talep API uçları (`docs/API.md`) bu haftanın ikinci parçasıdır.
 
 **Demo verisi (gösterim için)**
 
@@ -167,6 +176,7 @@ dotnet run --launch-profile ag
 | `SeedLookups` | 7 kategori (Bootstrap ikon adlarıyla) ve 8 kampüs konumu |
 | `ItemPhotos` | İlan fotoğrafları tablosu (dosya yolu, sıra); ilan silinince fotoğraf satırları da silinir |
 | `ItemRejectionReason` | `Items.RejectionReason`: görevlinin ret sebebi (en fazla 500 karakter) |
+| `Claims` | "Bu benim" talepleri: ilan, talep eden, doğrulama cevabı, not, durum, tarihler. İlan silinince talepleri de silinir; aynı kişinin aynı ilana tek açık talebi olabilir |
 
 ## Lisanslar
 

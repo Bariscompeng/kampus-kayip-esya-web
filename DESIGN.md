@@ -94,6 +94,8 @@ Her sayfada kendi açıklaması, canonical, Open Graph ve Twitter etiketleri (`/
 
 ## Değişiklik günlüğü
 
+- 2026-11-28 — Talepler: profil menüsü (`.profile-nav`, seçili bağlantı `--strong-bg` dolgulu, telefonda tek satır ve ikonsuz), talep cevabı kutusu (`.claim-answer`), bölüm başlığında sayaç (`.section-title .tab-count`). Talep durumları mevcut `.status-*` rozetleriyle gösterilir.
+
 - 2026-11-24 — Açık/koyu tema düğmesi (daire geçişli), açık tema paleti, katmanlı butonlar ve tıklama dalgası, daha güçlü başlık tipografisi.
 
 - 2026-11-23 — Koyu tema lacivertten nötr grafite çevrildi (zemin #121212, yüzeyler #1c1c1e / #26262a); favicon ve paylaşım görseli güncellendi.
