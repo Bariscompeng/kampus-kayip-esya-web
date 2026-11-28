@@ -32,4 +32,6 @@ public class Item
     public string? RejectionReason { get; set; }
 
     public ICollection<ItemPhoto> Photos { get; set; } = new List<ItemPhoto>();
+
+    public ICollection<ItemClaim> Claims { get; set; } = new List<ItemClaim>();
 }

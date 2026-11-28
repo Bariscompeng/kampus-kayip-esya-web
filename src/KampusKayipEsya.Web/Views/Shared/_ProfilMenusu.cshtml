@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Identity
+@using KampusKayipEsya.Web.Models
+@using KampusKayipEsya.Web.Services
+@model string
+@inject UserManager<AppUser> UserManager
+@inject IClaimService ClaimService
+@{
+    var gelenBekleyen = await ClaimService.CountIncomingPendingAsync(UserManager.GetUserId(User)!);
+    var baglantilar = new[]
+    {
+        (Anahtar: "ilanlarim", Adres: "/profilim", Simge: "bi-card-list", Baslik: "İlanlarım", Sayi: 0),
+        (Anahtar: "taleplerim", Adres: "/taleplerim", Simge: "bi-send", Baslik: "Taleplerim", Sayi: 0),
+        (Anahtar: "gelen", Adres: "/gelen-talepler", Simge: "bi-inbox", Baslik: "Gelen talepler", Sayi: gelenBekleyen)
+    };
+}
+
+<nav class="profile-nav" aria-label="Profil bölümleri">
+    @foreach (var b in baglantilar)
+    {
+        <a href="@b.Adres" aria-current="@(b.Anahtar == Model ? "page" : null)">
+            <i class="bi @b.Simge" aria-hidden="true"></i>@b.Baslik
+            @if (b.Sayi > 0)
+            {
+                <span class="count-pill" title="Yanıt bekleyen talep">@b.Sayi<span class="visually-hidden"> yanıt bekleyen talep</span></span>
+            }
+        </a>
+    }
+</nav>

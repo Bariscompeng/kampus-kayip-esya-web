@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace KampusKayipEsya.Web.Controllers;
 
 [Authorize]
-public class ItemsController(AppDbContext context, IItemService itemService, IPhotoService photoService, UserManager<AppUser> userManager) : Controller
+public class ItemsController(AppDbContext context, IItemService itemService, IPhotoService photoService, IClaimService claimService, UserManager<AppUser> userManager) : Controller
 {
     private const int ListeSayfaBoyutu = 12;
 
@@ -76,7 +76,17 @@ public class ItemsController(AppDbContext context, IItemService itemService, IPh
         if (ilan is null) return NotFound();
 
         var sahibiMi = izleyen.Owns(ilan);
-        return View(new ItemDetailsViewModel(ilan, sahibiMi, sahibiMi || izleyen.IsStaff, ilan.Owner.ShortName));
+        ItemClaim? talebim = null;
+        var talepSayisi = 0;
+        if (ilan.Type == ItemType.Found)
+        {
+            if (sahibiMi)
+                talepSayisi = await claimService.CountActiveForItemAsync(id);
+            else if (izleyen.UserId is string kullaniciId)
+                talebim = await claimService.GetActiveClaimAsync(id, kullaniciId);
+        }
+
+        return View(new ItemDetailsViewModel(ilan, sahibiMi, sahibiMi || izleyen.IsStaff, ilan.Owner.ShortName, talebim, talepSayisi));
     }
 
     [HttpGet("/profilim")]

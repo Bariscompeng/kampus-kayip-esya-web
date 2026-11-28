@@ -64,6 +64,7 @@ builder.Services.AddSingleton<IEmailDomainValidator>(new EmailDomainValidator(
     builder.Configuration.GetSection("AllowedEmailDomains").Get<string[]>() ?? []));
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<INotificationService, NullNotificationService>();
 
 // API'ye tarayıcıdan (Flutter web testi) erişim: listedeki kökenler, geliştirmede ayrıca localhost'un her portu.

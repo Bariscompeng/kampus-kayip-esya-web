@@ -25,6 +25,8 @@
     <a class="btn btn-outline-primary" asp-action="Create"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Yeni ilan</a>
 </div>
 
+<partial name="_ProfilMenusu" model="@("ilanlarim")" />
+
 <partial name="_IslemMesajlari" />
 
 <div class="nav tabs-bar" role="tablist" aria-label="İlan durumları">
@@ -130,36 +132,9 @@
     }
 </div>
 
-<div class="modal fade" id="onayPenceresi" tabindex="-1" aria-labelledby="onayBaslik" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form class="modal-content" method="post" id="onayFormu">
-            @Html.AntiForgeryToken()
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="onayBaslik"></h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-            </div>
-            <div class="modal-body" id="onayMesaj"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="submit" class="btn" id="onayButon"></button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @section Scripts {
+    <partial name="_OnayPenceresi" />
     <script>
-        document.getElementById("onayPenceresi").addEventListener("show.bs.modal", olay => {
-            const tetik = olay.relatedTarget;
-            document.getElementById("onayFormu").action = tetik.dataset.adres;
-            document.getElementById("onayBaslik").textContent = tetik.dataset.baslik;
-            document.getElementById("onayMesaj").textContent = tetik.dataset.mesaj;
-            const buton = document.getElementById("onayButon");
-            buton.textContent = tetik.dataset.buton;
-            buton.className = "btn " + tetik.dataset.renk;
-        });
-
-        // Seçili sekmeyi adres çubuğuna yaz: yenileme ve geri tuşu aynı sekmeye döner.
         document.querySelectorAll("[data-sekme]").forEach(sekme => sekme.addEventListener("shown.bs.tab", () => {
             const adres = new URL(location.href);
             adres.searchParams.set("sekme", sekme.dataset.sekme);

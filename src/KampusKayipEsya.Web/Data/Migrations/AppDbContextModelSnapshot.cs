@@ -248,6 +248,52 @@ namespace KampusKayipEsya.Web.Data.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemClaim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DecidedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("VerificationAnswer")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClaimantId", "CreatedAt");
+
+                    b.HasIndex("ItemId", "ClaimantId")
+                        .IsUnique()
+                        .HasFilter("[Status] <> 'Cancelled'");
+
+                    b.ToTable("Claims");
+                });
+
             modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemPhoto", b =>
                 {
                     b.Property<int>("Id")
@@ -518,6 +564,25 @@ namespace KampusKayipEsya.Web.Data.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemClaim", b =>
+                {
+                    b.HasOne("KampusKayipEsya.Web.Models.AppUser", "Claimant")
+                        .WithMany()
+                        .HasForeignKey("ClaimantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KampusKayipEsya.Web.Models.Item", "Item")
+                        .WithMany("Claims")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Claimant");
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("KampusKayipEsya.Web.Models.ItemPhoto", b =>
                 {
                     b.HasOne("KampusKayipEsya.Web.Models.Item", "Item")
@@ -592,6 +657,8 @@ namespace KampusKayipEsya.Web.Data.Migrations
 
             modelBuilder.Entity("KampusKayipEsya.Web.Models.Item", b =>
                 {
+                    b.Navigation("Claims");
+
                     b.Navigation("Photos");
                 });
 

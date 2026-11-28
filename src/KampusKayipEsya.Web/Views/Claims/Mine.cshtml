@@ -1,0 +1,98 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models
+@using KampusKayipEsya.Web.Models.Enums
+@model IReadOnlyList<ItemClaim>
+@{
+    ViewData["Title"] = "Taleplerim";
+    ViewData["NoIndex"] = true;
+    var tr = new CultureInfo("tr-TR");
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="h3">Taleplerim</h1>
+        <p class="lede">Sahiplendiğin eşyalar için gönderdiğin talepler.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="/items?type=Found"><i class="bi bi-search me-2" aria-hidden="true"></i>Bulunan eşyalar</a>
+</div>
+
+<partial name="_ProfilMenusu" model="@("taleplerim")" />
+
+<partial name="_IslemMesajlari" />
+
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+        <i class="bi bi-send" aria-hidden="true"></i>
+        <strong>Henüz talebin yok.</strong>
+        <span>Bulunan eşyalar arasında seninki varsa ilan sayfasındaki “Bu benim” düğmesiyle talep gönder.</span>
+        <a class="btn btn-outline-primary" href="/items?type=Found">Bulunan eşyalara bak</a>
+    </div>
+}
+else
+{
+    <ul class="surface list-unstyled mb-0">
+        @foreach (var talep in Model)
+        {
+            var ilan = talep.Item;
+            var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
+            var acik = ilan.Status == ItemStatus.Published;
+            <li class="my-item">
+                @if (kapak is not null)
+                {
+                    <img src="@Url.Content("~/" + kapak.Path)" alt="" width="80" height="80" class="my-item-thumb" loading="lazy" />
+                }
+                else
+                {
+                    <span class="my-item-thumb" aria-hidden="true"><i class="bi @(ilan.Category.Icon ?? "bi-image")"></i></span>
+                }
+                <div class="my-item-body">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="@talep.Status.BadgeClass()">@talep.Status.ToTurkish()</span>
+                        @if (!acik)
+                        {
+                            <span class="chip">İlan @ilan.Status.ToTurkish().ToLower(tr)</span>
+                        }
+                    </div>
+                    @if (acik)
+                    {
+                        <a href="/items/@ilan.Id" class="my-item-title">@ilan.Title</a>
+                    }
+                    else
+                    {
+                        <span class="my-item-title">@ilan.Title</span>
+                    }
+                    <div class="item-meta">
+                        <i class="bi bi-geo-alt" aria-hidden="true"></i>@ilan.Location.Building
+                        · Talep: <time datetime="@talep.CreatedAt.ToString("o")">@talep.CreatedAt.ToLocalTime().ToString("d MMM yyyy HH:mm", tr)</time>
+                    </div>
+                    <div class="claim-answer"><span class="claim-answer-label">Cevabın</span>@talep.VerificationAnswer</div>
+                    @if (talep.Message is not null)
+                    {
+                        <div class="claim-answer"><span class="claim-answer-label">Notun</span>@talep.Message</div>
+                    }
+                </div>
+                <div class="my-item-actions">
+                    @if (acik)
+                    {
+                        <a class="btn btn-sm btn-outline-secondary" href="/items/@ilan.Id">İlana git</a>
+                    }
+                    @if (talep.Status == ClaimStatus.Pending)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#onayPenceresi"
+                                data-baslik="Talebi geri çek" data-buton="Evet, geri çek" data-renk="btn-danger"
+                                data-mesaj="“@ilan.Title” için gönderdiğin talep geri çekilecek. İstersen daha sonra yeniden talep gönderebilirsin."
+                                data-adres="@Url.Action("Withdraw", new { id = talep.Id })"
+                                aria-label="@ilan.Title için talebi geri çek">
+                            <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Geri çek
+                        </button>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+}
+
+@section Scripts {
+    <partial name="_OnayPenceresi" />
+}

@@ -6,13 +6,14 @@
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
     bool Aktif(string c, string a) => area == "" && controller == c && action == a;
+    var profilAktif = Aktif("Items", "Mine") || Aktif("Claims", "Mine") || Aktif("Claims", "Incoming");
 }
 
 <ul class="navbar-nav align-items-md-center gap-md-1">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link @(Aktif("Items", "Mine") ? "active" : "")" aria-current="@(Aktif("Items", "Mine") ? "page" : null)"
+        <a class="nav-link @(profilAktif ? "active" : "")" aria-current="@(profilAktif ? "page" : null)"
            asp-area="" asp-controller="Items" asp-action="Mine" title="@User.Identity?.Name">
             <i class="bi bi-person-circle me-2" aria-hidden="true"></i>Profilim
         </a>
