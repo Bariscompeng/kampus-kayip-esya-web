@@ -1,0 +1,27 @@
+<div class="modal fade" id="onayPenceresi" tabindex="-1" aria-labelledby="onayBaslik" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="post" id="onayFormu">
+            @Html.AntiForgeryToken()
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="onayBaslik"></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body" id="onayMesaj"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn" id="onayButon"></button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById("onayPenceresi").addEventListener("show.bs.modal", olay => {
+        const tetik = olay.relatedTarget;
+        document.getElementById("onayFormu").action = tetik.dataset.adres;
+        document.getElementById("onayBaslik").textContent = tetik.dataset.baslik;
+        document.getElementById("onayMesaj").textContent = tetik.dataset.mesaj;
+        const buton = document.getElementById("onayButon");
+        buton.textContent = tetik.dataset.buton;
+        buton.className = "btn " + tetik.dataset.renk;
+    });
+</script>

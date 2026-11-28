@@ -785,7 +785,7 @@ html { scrollbar-color: var(--line-strong) transparent; }
 .tabs-bar .nav-link:hover { color: var(--ink); }
 .tabs-bar .nav-link.active { color: var(--ink); }
 .tabs-bar .nav-link.active::after { content: ""; position: absolute; left: 0.5rem; right: 0.5rem; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--accent); }
-.tabs-bar .tab-count { font-size: var(--fs-xs); min-width: 1.4rem; height: 1.4rem; display: inline-grid; place-items: center; padding: 0 0.35rem; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-variant-numeric: tabular-nums; }
+.tabs-bar .tab-count, .section-title .tab-count { font-size: var(--fs-xs); min-width: 1.4rem; height: 1.4rem; display: inline-grid; place-items: center; padding: 0 0.35rem; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-variant-numeric: tabular-nums; }
 .tabs-bar .nav-link.active .tab-count { background: var(--strong-bg); color: var(--strong-fg); }
 
 .my-item { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 1rem; padding: 1rem; border-bottom: 1px solid var(--line); align-items: center; }
@@ -1068,6 +1068,29 @@ a:focus-visible > .arrow-back { translate: -5px 0; }
 /* İlan detayında talep paneli */
 .claim-panel { padding: 1rem 1.1rem; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
 .claim-panel .tag { --tag-hole: var(--surface); }
+
+.profile-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+.profile-nav a {
+  display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.75rem; padding: 0 1rem;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  color: var(--muted); font-weight: 600; text-decoration: none;
+  transition: color 160ms var(--ease-out), border-color 160ms var(--ease-out), background-color 160ms var(--ease-out);
+}
+.profile-nav a:hover { color: var(--ink); border-color: var(--line-strong); }
+.profile-nav a[aria-current="page"] { background: var(--strong-bg); border-color: var(--strong-bg); color: var(--strong-fg); }
+.profile-nav .count-pill { margin-left: 0.1rem; }
+@media (max-width: 575.98px) {
+  .profile-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 0.4rem; }
+  .profile-nav a { flex: 0 0 auto; padding: 0 0.8rem; white-space: nowrap; }
+  .profile-nav a > .bi { display: none; }
+}
+.claim-question { margin-top: 0.5rem; color: var(--muted); font-size: var(--fs-sm); }
+.claim-answer {
+  display: flex; flex-wrap: wrap; gap: 0.25rem 0.6rem; align-items: baseline;
+  margin-top: 0.4rem; padding: 0.5rem 0.7rem; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); overflow-wrap: anywhere;
+}
+.claim-answer-label { color: var(--muted); font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .lede-lg { font-size: var(--fs-lg); line-height: 1.5; }
 
 .item-card-body .tag-inline { display: none; align-self: flex-start; }

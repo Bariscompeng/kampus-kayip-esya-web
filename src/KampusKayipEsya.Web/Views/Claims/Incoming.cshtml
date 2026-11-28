@@ -1,0 +1,84 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models
+@using KampusKayipEsya.Web.Models.Enums
+@model KampusKayipEsya.Web.ViewModels.IncomingClaimsViewModel
+@{
+    ViewData["Title"] = "Gelen talepler";
+    ViewData["NoIndex"] = true;
+    var tr = new CultureInfo("tr-TR");
+    var bolumler = new[]
+    {
+        (Baslik: "Yanıt bekleyen", Talepler: Model.Bekleyenler),
+        (Baslik: "Sonuçlanan", Talepler: Model.Sonuclananlar)
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1 class="h3">Gelen talepler</h1>
+        <p class="lede">Bulduğun eşyalar için gelen sahiplenme talepleri. Cevapları yalnızca sen ve görevliler görürsün.</p>
+    </div>
+</div>
+
+<partial name="_ProfilMenusu" model="@("gelen")" />
+
+<partial name="_IslemMesajlari" />
+
+@if (Model.Bekleyenler.Count == 0 && Model.Sonuclananlar.Count == 0)
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox" aria-hidden="true"></i>
+        <strong>Henüz gelen talep yok.</strong>
+        <span>Açtığın bir “Buldum” ilanına talep geldiğinde, doğrulama sorusuna verilen cevapla birlikte burada görünür.</span>
+        <a class="btn btn-outline-primary" href="/profilim">İlanlarıma git</a>
+    </div>
+}
+else
+{
+    @foreach (var bolum in bolumler.Where(b => b.Talepler.Count > 0))
+    {
+        <section class="mb-4" aria-label="@bolum.Baslik talepler">
+            <h2 class="section-title">@bolum.Baslik <span class="tab-count">@bolum.Talepler.Count</span></h2>
+            <ul class="surface list-unstyled mb-0">
+                @foreach (var talep in bolum.Talepler)
+                {
+                    var ilan = talep.Item;
+                    var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
+                    <li class="my-item">
+                        <a href="/items/@ilan.Id" class="flex-shrink-0" tabindex="-1" aria-hidden="true">
+                            @if (kapak is not null)
+                            {
+                                <img src="@Url.Content("~/" + kapak.Path)" alt="" width="80" height="80" class="my-item-thumb" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="my-item-thumb"><i class="bi @(ilan.Category.Icon ?? "bi-image")"></i></span>
+                            }
+                        </a>
+                        <div class="my-item-body">
+                            <span class="@talep.Status.BadgeClass()">@talep.Status.ToTurkish()</span>
+                            <a href="/items/@ilan.Id" class="my-item-title">@ilan.Title</a>
+                            <div class="item-meta">
+                                <i class="bi bi-person" aria-hidden="true"></i>@talep.Claimant.ShortName
+                                · <time datetime="@talep.CreatedAt.ToString("o")">@talep.CreatedAt.ToLocalTime().ToString("d MMM yyyy HH:mm", tr)</time>
+                            </div>
+                            @if (ilan.VerificationQuestion is not null)
+                            {
+                                <div class="claim-question"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>@ilan.VerificationQuestion</div>
+                            }
+                            <div class="claim-answer"><span class="claim-answer-label">Cevap</span>@talep.VerificationAnswer</div>
+                            @if (talep.Message is not null)
+                            {
+                                <div class="claim-answer"><span class="claim-answer-label">Not</span>@talep.Message</div>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+            @if (bolum.Talepler == Model.Bekleyenler)
+            {
+                <p class="coming-soon mt-2"><i class="bi bi-info-circle" aria-hidden="true"></i>Talebi onaylama ve reddetme bu sayfaya eklenecek; o zamana kadar talepler “Yanıt bekliyor” olarak kalır.</p>
+            }
+        </section>
+    }
+}
