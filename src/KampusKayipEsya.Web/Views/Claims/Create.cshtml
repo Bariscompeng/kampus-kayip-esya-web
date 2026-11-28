@@ -1,0 +1,77 @@
+@using System.Globalization
+@using KampusKayipEsya.Web.Models.Enums
+@model KampusKayipEsya.Web.ViewModels.ClaimCreateViewModel
+@{
+    var ilan = Model.Item;
+    var tr = new CultureInfo("tr-TR");
+    var kapak = ilan.Photos.OrderBy(p => p.Order).FirstOrDefault();
+    ViewData["Title"] = "Sahiplenme talebi";
+    ViewData["NoIndex"] = true;
+}
+
+<a class="back-link mb-3" href="/items/@ilan.Id"><i class="bi bi-arrow-left arrow-back" aria-hidden="true"></i>İlana dön</a>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-9 col-xl-8">
+        <div class="page-head">
+            <div>
+                <h1 class="h3">Bu eşya benim</h1>
+                <p class="lede">Doğrulama sorusunu cevapla; ilanı açan kişi cevabını inceleyip sana dönecek.</p>
+            </div>
+        </div>
+
+        <div class="surface mb-3">
+            <div class="my-item">
+                @if (kapak is not null)
+                {
+                    <img src="@Url.Content("~/" + kapak.Path)" alt="" width="80" height="80" class="my-item-thumb" />
+                }
+                else
+                {
+                    <span class="my-item-thumb" aria-hidden="true"><i class="bi @(ilan.Category.Icon ?? "bi-image")"></i></span>
+                }
+                <div class="my-item-body">
+                    <span class="@ilan.Type.TagClass()">@ilan.Type.ToTurkish()</span>
+                    <span class="my-item-title">@ilan.Title</span>
+                    <div class="item-meta">
+                        <i class="bi bi-geo-alt" aria-hidden="true"></i>@ilan.Location.Building
+                        · <time datetime="@ilan.EventDate.ToString("yyyy-MM-dd")">@ilan.EventDate.ToString("d MMMM yyyy", tr)</time>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form asp-controller="Claims" asp-action="Create" asp-route-id="@ilan.Id" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="field-panel mb-3">
+                <div class="fw-semibold mb-1"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>Doğrulama sorusu</div>
+                <p class="mb-0" id="dogrulamaSorusu">
+                    @(ilan.VerificationQuestion ?? "İlanı açan kişi soru eklememiş. Eşyayı yalnızca sahibinin bilebileceği bir ayrıntıyla tarif et.")
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VerificationAnswer" class="form-label"></label>
+                <input asp-for="VerificationAnswer" class="form-control" maxlength="@KampusKayipEsya.Web.ViewModels.ClaimCreateViewModel.CevapEnFazla"
+                       autocomplete="off" aria-describedby="dogrulamaSorusu cevapYardim" />
+                <div id="cevapYardim" class="form-text">Cevabını yalnızca ilanı açan kişi ve kayıp eşya bürosu görevlileri görür.</div>
+                <span asp-validation-for="VerificationAnswer" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Message" class="form-label"></label>
+                <textarea asp-for="Message" class="form-control" rows="3" maxlength="@KampusKayipEsya.Web.ViewModels.ClaimCreateViewModel.MesajEnFazla"
+                          placeholder="ör. Cüzdanı dün öğleden sonra amfide düşürmüş olabilirim." aria-describedby="notYardim"></textarea>
+                <div id="notYardim" class="form-text">Telefon ya da e-posta yazma; ilan sahibiyle yazışma site içinden olacak.</div>
+                <span asp-validation-for="Message" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-send me-2" aria-hidden="true"></i>Talebi gönder</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

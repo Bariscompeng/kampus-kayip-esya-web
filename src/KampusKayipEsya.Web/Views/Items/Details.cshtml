@@ -119,19 +119,64 @@
                         <i class="bi bi-pencil me-2" aria-hidden="true"></i>Düzenle
                     </a>
                 }
+                @if (bulundu)
+                {
+                    <a class="btn btn-outline-primary" href="/gelen-talepler">
+                        <i class="bi bi-inbox me-2" aria-hidden="true"></i>Gelen talepler
+                        @if (Model.ClaimCount > 0)
+                        {
+                            <span class="count-pill">@Model.ClaimCount</span>
+                        }
+                    </a>
+                }
                 <a class="btn btn-outline-secondary" asp-action="Mine" asp-route-sekme="@KampusKayipEsya.Web.ViewModels.MyItemsViewModel.SekmeOf(ilan.Status)">
                     <i class="bi bi-person-lines-fill me-2" aria-hidden="true"></i>İlanlarım
                 </a>
             }
-            else
+            else if (bulundu && ilan.Status == ItemStatus.Published)
             {
                 <section class="claim-panel" aria-labelledby="talepBaslik">
-                    <span class="tag tag-lg @(bulundu ? "tag-found" : "tag-lost")" aria-hidden="true">Yakında</span>
-                    <h2 id="talepBaslik" class="h6 mt-2 mb-1">@(bulundu ? "Bu eşya senin mi?" : "Bu eşyayı sen mi buldun?")</h2>
+                    @if (Model.MyClaim is { } talebim)
+                    {
+                        <span class="@talebim.Status.BadgeClass()">@talebim.Status.ToTurkish()</span>
+                        <h2 id="talepBaslik" class="h6 mt-2 mb-1">Bu eşya için talebin var</h2>
+                        <p class="mb-0 small">
+                            <time datetime="@talebim.CreatedAt.ToString("o")">@talebim.CreatedAt.ToLocalTime().ToString("d MMMM yyyy HH:mm", tr)</time> tarihinde gönderdin.
+                            İlan sahibi cevabını inceleyip yanıtlayacak.
+                        </p>
+                    }
+                    else
+                    {
+                        <h2 id="talepBaslik" class="h6 mb-1">Bu eşya senin mi?</h2>
+                        <p class="mb-0 small">
+                            Doğrulama sorusunu cevaplayarak sahiplenme talebi gönder. Cevabını yalnızca ilanı açan kişi ve görevliler görür;
+                            telefon ve e-posta bilgilerin paylaşılmaz.
+                        </p>
+                    }
+                </section>
+                @if (Model.MyClaim is not null)
+                {
+                    <a class="btn btn-outline-primary" href="/taleplerim">
+                        <i class="bi bi-send-check me-2" aria-hidden="true"></i>Taleplerim
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-lg" href="/items/@ilan.Id/talep">
+                        <i class="bi bi-hand-index-thumb me-2" aria-hidden="true"></i>@(User.Identity?.IsAuthenticated == true ? "Bu benim" : "Giriş yap ve talep et")
+                    </a>
+                }
+                <a class="btn btn-outline-secondary" asp-action="Index" asp-route-categoryId="@ilan.CategoryId">
+                    Benzer ilanlara bak<i class="bi bi-arrow-right ms-2 arrow" aria-hidden="true"></i>
+                </a>
+            }
+            else if (!bulundu)
+            {
+                <section class="claim-panel" aria-labelledby="talepBaslik">
+                    <span class="tag tag-lg tag-lost" aria-hidden="true">Yakında</span>
+                    <h2 id="talepBaslik" class="h6 mt-2 mb-1">Bu eşyayı sen mi buldun?</h2>
                     <p class="mb-0 small">
-                        @(bulundu
-                            ? "Sahiplenme talebi bu sayfadan gönderilecek; doğrulama sorusunu cevaplayan kişi ilan sahibiyle site içinden yazışacak."
-                            : "Bulduğunu bildirme bu sayfadan yapılacak; ilan sahibiyle site içinden yazışacaksın.")
+                        Bulduğunu bildirme bu sayfadan yapılacak; ilan sahibiyle site içinden yazışacaksın.
                         Telefon ve e-posta bilgileri hiçbir zaman paylaşılmaz.
                     </p>
                 </section>

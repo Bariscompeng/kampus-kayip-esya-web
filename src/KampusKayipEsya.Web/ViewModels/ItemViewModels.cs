@@ -60,7 +60,7 @@ public class ItemEditViewModel : ItemCreateViewModel
     public bool OnayaDuser => Status is ItemStatus.Published or ItemStatus.Rejected;
 }
 
-public record ItemDetailsViewModel(Item Item, bool IsOwner, bool CanSeeQuestion, string OwnerShortName);
+public record ItemDetailsViewModel(Item Item, bool IsOwner, bool CanSeeQuestion, string OwnerShortName, ItemClaim? MyClaim = null, int ClaimCount = 0);
 
 public class MyItemsViewModel(IReadOnlyList<Item> items, string? sekme)
 {
