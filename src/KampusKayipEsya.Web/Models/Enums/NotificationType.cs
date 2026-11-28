@@ -4,5 +4,6 @@ namespace KampusKayipEsya.Web.Models.Enums;
 public enum NotificationType
 {
     ItemApproved = 0,
-    ItemRejected = 1
+    ItemRejected = 1,
+    ClaimReceived = 2
 }

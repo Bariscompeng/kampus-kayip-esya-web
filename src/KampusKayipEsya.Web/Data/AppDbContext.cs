@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Item> Items => Set<Item>();
     public DbSet<ItemPhoto> ItemPhotos => Set<ItemPhoto>();
+    public DbSet<ItemClaim> Claims => Set<ItemClaim>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -63,6 +64,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(p => p.Item).WithMany(i => i.Photos)
                 .HasForeignKey(p => p.ItemId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(p => new { p.ItemId, p.Order });
+        });
+
+        builder.Entity<ItemClaim>(e =>
+        {
+            e.Property(c => c.VerificationAnswer).HasMaxLength(300).IsRequired();
+            e.Property(c => c.Message).HasMaxLength(500);
+            e.Property(c => c.Status).HasConversion<string>().HasMaxLength(20);
+
+            e.HasOne(c => c.Item).WithMany(i => i.Claims)
+                .HasForeignKey(c => c.ItemId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(c => c.Claimant).WithMany()
+                .HasForeignKey(c => c.ClaimantId).OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(c => new { c.ItemId, c.ClaimantId })
+                .IsUnique()
+                .HasFilter("[Status] <> 'Cancelled'");
+            e.HasIndex(c => new { c.ClaimantId, c.CreatedAt });
         });
 
         SeedData.Apply(builder);
